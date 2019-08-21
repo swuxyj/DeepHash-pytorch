@@ -1,6 +1,6 @@
 # DeepHash-pytorch
-Simple Implementation of Some Deep Hash Algorithms.
-#### Any Pull Request is pretty welcome
+Implementation of Some Deep Hash Algorithms.
+#### Any Pull Request is highly welcomed
 
 # How to run
 You can easily train and test any algorithm just by
@@ -12,7 +12,7 @@ pyhon DHN.py
 ```
 # Dataset
 You can download  ImageNet, NUS-WIDE and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch),
-and download cifar10 [here](https://github.com/thulab/DeepHash)
+and download cifar10(Lossless PNG format) [here](https://drive.google.com/open?id=1NZ5QKW2zqzN-RQ4VDpuOAb-UgcsTPUJK)
 # Paper And Code
 DSH(CVPR2016)  
 paper [Deep Supervised Hashing for Fast Image Retrieval](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Liu_Deep_Supervised_Hashing_CVPR_2016_paper.pdf)  
@@ -34,19 +34,19 @@ code [DeepHash-tensorflow](https://github.com/thulab/DeepHash)
 # Mean Average Precision,48 bits.
 <table>
     <tr>
-        <td rowspan="2">Algorithms</td><td rowspan="2">dataset</td><td rowspan="2">MAP of my code</td><td rowspan="2">MAP of paper</td> 
+        <td>Algorithms</td><td>dataset</td><td>this impl.</td><td>paper</td>
     </tr>
     <tr>
-        <td >DSH</td><td >cifar10</td> <td >0.6810</td> <td >0.6755</td> 
+        <td >DSH</td><td >cifar10</td> <td >0.787</td> <td >0.6755</td>
     </tr>
     <tr>
-        <td ></td><td >nus wide21</td> <td >0.7510</td> <td >0.5621</td>  
+        <td ></td><td >nus wide21</td> <td >0.7510</td> <td >0.5621</td>
     </tr>
     <tr>
-        <td >DPSH</td><td >cifar10</td> <td >0.694</td> <td >0.757</td>
+        <td >DPSH</td><td >cifar10</td> <td >0.775</td> <td >0.757</td>
     </tr>
     <tr>
-        <td ></td><td >nus wide81</td> <td >0.757</td> <td >0.851</td>
+        <td ></td><td >nus wide21</td> <td >0.814</td> <td >0.851</td>
     </tr>
     <tr>
         <td >HashNet</td><td >nus wide81</td> <td >0.764</td> <td >0.7114</td>
@@ -55,7 +55,7 @@ code [DeepHash-tensorflow](https://github.com/thulab/DeepHash)
         <td ></td><td >imagenet</td> <td >0.600</td> <td >0.6633</td>
     </tr>
     <tr>
-        <td >DHN</td><td >cifar10</td> <td >0.699</td> <td >0.621</td>
+        <td >DHN</td><td >cifar10</td> <td >0.779</td> <td >0.621</td>
     </tr>
     <tr>
         <td ></td><td >nus wide21</td> <td >0.816</td> <td >0.758</td>

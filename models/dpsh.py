@@ -16,26 +16,19 @@ class AlexNet(nn.Module):
     cl2.weight = model_alexnet.classifier[4].weight
     cl2.bias = model_alexnet.classifier[4].bias
 
-    self.features2 = nn.Sequential(
+    self.classifier = nn.Sequential(
         nn.Dropout(),
         cl1,
         nn.ReLU(inplace=True),
         nn.Dropout(),
         cl2,
-    )
-    self.out = nn.Sequential(
         nn.ReLU(inplace=True),
         nn.Linear(4096, hash_bit),
     )
 
-    self.model_name = 'alexnet'
-
-    # for p in self.features.parameters():
-    #     p.requires_grad = False
 
   def forward(self, x):
-    f = self.features(x)
-    f = f.view(f.size(0), 256 * 6 * 6)
-    y = self.features2(f)
-    x = self.out(y)
-    return x , y
+    x = self.features(x)
+    x = x.view(x.size(0), 256 * 6 * 6)
+    x = self.classifier(x)
+    return x

@@ -10,12 +10,11 @@ plt.switch_backend('agg')
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-
 def get_config():
     config = {
         "alpha": 0.1,
-        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}, "lr_type": "step"},
-        "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
+        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}},
+        "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
         "info": "[DHN]",
         "resize_size": 256,
         "crop_size": 224,
@@ -23,20 +22,19 @@ def get_config():
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
-        # "dataset":"nuswide_21",
-        "dataset":"coco",
+        "dataset":"nuswide_21",
+        # "dataset":"coco",
         # "dataset":"nuswide_81",
         # "dataset":"imagenet",
-        "featureImg": "SNE",
-        # "featureImg":"PCA",
-        "epoch": 5000,
-        "test_map": 10,
+
+        "epoch": 80,
+        "evaluate_freq": 20,
         "GPU": True,
         # "GPU":False,
-        "bit_list": [48],
+        "bit_list": [48, 32, 24, 12],
     }
     if config["dataset"] == "cifar10":
-        config["topK"] = -1
+        config["topK"] = 54000
         config["n_class"] = 10
     elif config["dataset"] == "nuswide_21":
         config["topK"] = 5000
@@ -60,22 +58,14 @@ def get_config():
     return config
 
 
-def AdjustLearningRate(optimizer, epoch, learning_rate):
-    lr = learning_rate * (0.8 ** (epoch // 50))
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
-    return optimizer
-
-
-
 def calc_loss(x1, x2, y1, y2, config):
-    s = (y1@y2.t() > 0).float()
+    s = (y1 @ y2.t() > 0).float()
     inner_product = x1 @ x2.t() * 0.5
     if config["GPU"]:
-        log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product)))\
+        log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product))) \
                     + torch.max(inner_product, torch.FloatTensor([0.]).cuda())
     else:
-        log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product)))\
+        log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product))) \
                     + torch.max(inner_product, torch.FloatTensor([0.]))
     loss = log_trick - s * inner_product
     loss1 = loss.mean()
@@ -84,7 +74,6 @@ def calc_loss(x1, x2, y1, y2, config):
 
 
 def train_val(config, bit):
-
     train_loader, test_loader, dataset_loader, num_train, num_test = get_data(config)
     net = config["net"](bit)
     if config["GPU"]:
@@ -98,28 +87,26 @@ def train_val(config, bit):
     if config["GPU"]:
         U = U.cuda()
         L = L.cuda()
-
+    Best_mAP = 0
     for epoch in range(config["epoch"]):
-        # if config["dataset"] == "cifar10":
-        #     net.eval()
-        #     visualize(test_loader, net, epoch,config["GPU"],config["featureImg"],logger)
+
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
 
         print("%s[%2d/%2d][%s] bit:%d, dataset:%s, training...." % (
             config["info"], epoch + 1, config["epoch"], current_time, bit, config["dataset"]), end="")
 
         net.train()
-        optimizer = AdjustLearningRate(optimizer, epoch, config["optimizer"]["optim_params"]["lr"])
+
         train_loss = 0
         for image, label, ind in train_loader:
             if config["GPU"]:
                 image, label = image.cuda(), label.cuda()
 
             optimizer.zero_grad()
-            b, _ = net(image)
-            for i, ind in enumerate(ind):
-                U[ind, :] = b.data[i]
-                L[ind, :] = label[i]
+            b = net(image)
+
+            U[ind, :] = b.data
+            L[ind, :] = label.float()
 
             loss = calc_loss(b, U, label.float(), L, config)
             train_loss += loss.item()
@@ -130,7 +117,7 @@ def train_val(config, bit):
 
         print("\b\b\b\b\b\b\b loss:%.3f" % (train_loss))
 
-        if (epoch + 1) % config["test_map"] == 0:
+        if (epoch + 1) % config["evaluate_freq"] == 0:
             print("calculating test binary code......")
             tst_binary, tst_label = compute_result(test_loader, net, usegpu=config["GPU"])
 
@@ -139,15 +126,14 @@ def train_val(config, bit):
             trn_binary, trn_label = compute_result(dataset_loader, net, usegpu=config["GPU"])
 
             print("calculating map.......")
-            if config["topK"] > 0:
-                mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),
-                                 config["topK"])
-            else:
-                mAP = CalcMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy())
-
+            mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),
+                             config["topK"])
             print(
                 "%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f" % (config["info"], epoch + 1, bit, config["dataset"], mAP))
             print(config)
+            if mAP > Best_mAP:
+                Best_mAP = mAP
+    print("bit:%d,Best MAP:%.3f" % (bit, Best_mAP))
 
 
 if __name__ == "__main__":

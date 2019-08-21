@@ -31,9 +31,9 @@ class AlexNet(nn.Module):
     self.scale = 1.0
 
   def forward(self, x):
-    f = self.features(x)
-    f = f.view(f.size(0), 256 * 6 * 6)
-    y = self.features2(f)
+    x = self.features(x)
+    x = x.view(x.size(0), 256 * 6 * 6)
+    x = self.features2(x)
 
-    x = torch.tanh(self.scale * self.out(y))
-    return x , y
+    x = torch.tanh(self.scale * self.out(x))
+    return x
