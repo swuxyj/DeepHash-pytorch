@@ -1,11 +1,13 @@
 from utils.tools import *
-from models.dpsh import *
-
+from network import *
+import os
 import matplotlib.pyplot as plt
 import torch
 import torch.optim as optim
 import time
+import numpy as np
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 plt.switch_backend('agg')
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -15,19 +17,20 @@ def get_config():
         "alpha": 0.1,
         # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
-        "info": "[0.1]",
+        "info": "[DSH]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 128,
+        "batch_size": 256,
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
-        # "dataset": "nuswide_21",
-        "dataset":"coco",
+        "dataset": "nuswide_21",
+        # "dataset":"coco",
         # "dataset":"nuswide_81",
         # "dataset":"imagenet",
-        "epoch": 500,
-        "test_map": 10,
+        "epoch": 90,
+        "test_map": 15,
+        "save_path": "save/DSH",
         "GPU": True,
         # "GPU":False,
         "bit_list": [48],
@@ -47,9 +50,9 @@ def get_config():
     elif config["dataset"] == "imagenet":
         config["topK"] = 1000
         config["n_class"] = 100
-    config["data_path"] = "../dataset_png/" + config["dataset"] + "/"
+    config["data_path"] = "/dataset/" + config["dataset"] + "/"
     if config["dataset"][:7] == "nuswide":
-        config["data_path"] = "../dataset/nus_wide/"
+        config["data_path"] = "/dataset/nus_wide/"
     config["data"] = {
         "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
         "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},
@@ -101,7 +104,7 @@ def train_val(config, bit):
             optimizer.zero_grad()
             b = net(image)
 
-            U[ind,: ] = b.data
+            U[ind, :] = b.data
             L[ind, :] = label.float()
 
             loss = calc_loss(b, U, label.float(), L, config)
@@ -126,10 +129,18 @@ def train_val(config, bit):
 
             mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),
                              config["topK"])
-
             print(
                 "%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f" % (config["info"], epoch + 1, bit, config["dataset"], mAP))
             print(config)
+            if "save_path" in config:
+                if not os.path.exists(config["save_path"]):
+                    os.makedirs(config["save_path"])
+                print("save in ", config["save_path"])
+                np.save(os.path.join(config["save_path"], config["dataset"] + str(mAP) + "-" + "trn_binary.npy"),
+                        trn_binary.numpy())
+                torch.save(net.state_dict(),
+                           os.path.join(config["save_path"], config["dataset"] + "-" + str(mAP) + "-model.pt"))
+
 
 
 if __name__ == "__main__":

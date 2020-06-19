@@ -3,7 +3,7 @@ import torch.utils.data as util_data
 from torchvision import transforms
 import torch
 from PIL import Image
-
+from tqdm import tqdm
 
 class ImageList(object):
 
@@ -51,11 +51,10 @@ def get_data(config):
     return dset_loaders["train_set"], dset_loaders["test"], dset_loaders["database"], len(dsets["train_set"]), len(
         dsets["test"])
 
-
 def compute_result(dataloader, net, usegpu=False):
     bs, clses = [], []
     net.eval()
-    for img, cls, _ in dataloader:
+    for img, cls, _ in tqdm(dataloader):
         clses.append(cls)
         if usegpu:
             bs.append((net(img.cuda())).data.cpu())
@@ -72,14 +71,14 @@ def CalcHammingDist(B1, B2):
 def CalcTopMap(rB, qB, retrievalL, queryL, topk):
     num_query = queryL.shape[0]
     topkmap = 0
-    for iter in range(num_query):
+    for iter in tqdm(range(num_query)):
         gnd = (np.dot(queryL[iter, :], retrievalL.transpose()) > 0).astype(np.float32)
         hamm = CalcHammingDist(qB[iter, :], rB)
         ind = np.argsort(hamm)
         gnd = gnd[ind]
 
         tgnd = gnd[0:topk]
-        tsum = np.sum(tgnd)
+        tsum = np.sum(tgnd).astype(int)
         if tsum == 0:
             continue
         count = np.linspace(1, tsum, tsum)

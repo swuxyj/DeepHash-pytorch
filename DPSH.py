@@ -1,12 +1,10 @@
 from utils.tools import *
-from models.dpsh import *
+from network import *
 
-import matplotlib.pyplot as plt
 import torch
 import torch.optim as optim
 import time
 
-plt.switch_backend('agg')
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
@@ -18,11 +16,11 @@ def get_config():
         "info": "[DPSH]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 128,
-        "net": AlexNet,
-        # "net":ResNet,
+        "batch_size": 64,
+        # "net": AlexNet,
+        "net":ResNet,
         # "dataset": "cifar10",
-        "dataset":"nuswide_21",
+        "dataset": "nuswide_21",
         # "dataset":"coco",
         # "dataset":"nuswide_81",
         # "dataset":"imagenet",
@@ -47,9 +45,9 @@ def get_config():
     elif config["dataset"] == "imagenet":
         config["topK"] = 1000
         config["n_class"] = 100
-    config["data_path"] = "../dataset/" + config["dataset"] + "/"
+    config["data_path"] = "/dataset/" + config["dataset"] + "/"
     if config["dataset"][:7] == "nuswide":
-        config["data_path"] = "../dataset/nus_wide/"
+        config["data_path"] = "/dataset/nus_wide/"
     config["data"] = {
         "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
         "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},
@@ -125,11 +123,9 @@ def train_val(config, bit):
             # trn_binary, trn_label = compute_result(train_loader, net, usegpu=config["GPU"])
             trn_binary, trn_label = compute_result(dataset_loader, net, usegpu=config["GPU"])
 
-            mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),
-                             config["topK"])
+            mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),config["topK"])
 
-            print(
-                "%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f" % (config["info"], epoch + 1, bit, config["dataset"], mAP))
+            print("%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f" % (config["info"], epoch + 1, bit, config["dataset"], mAP))
             if mAP > Best_mAP:
                 Best_mAP = mAP
     print("bit:%d,Best MAP:%.3f" % (bit, Best_mAP))

@@ -1,12 +1,10 @@
 from utils.tools import *
-from models.dpsh import *
+from network import *
 
-import matplotlib.pyplot as plt
 import torch
 import torch.optim as optim
 import time
 
-plt.switch_backend('agg')
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
@@ -18,7 +16,7 @@ def get_config():
         "eta": 55,
         # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
-        "info": "[mean]",
+        "info": "[DSDH]",
         "resize_size": 256,
         "crop_size": 224,
         "dcc_iter": 10,
@@ -53,9 +51,9 @@ def get_config():
     elif config["dataset"] == "imagenet":
         config["topK"] = 1000
         config["n_class"] = 100
-    config["data_path"] = "../dataset/" + config["dataset"] + "/"
+    config["data_path"] = "/dataset/" + config["dataset"] + "/"
     if config["dataset"][:7] == "nuswide":
-        config["data_path"] = "../dataset/nus_wide/"
+        config["data_path"] = "/dataset/nus_wide/"
     config["data"] = {
         "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
         "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},

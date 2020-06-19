@@ -1,11 +1,12 @@
 from utils.tools import *
-from models.dpsh import *
+from network import *
 
 import matplotlib.pyplot as plt
 import torch
 import torch.optim as optim
 import time
-
+import os
+import numpy as np
 plt.switch_backend('agg')
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -26,9 +27,9 @@ def get_config():
         # "dataset":"coco",
         # "dataset":"nuswide_81",
         # "dataset":"imagenet",
-
-        "epoch": 80,
-        "evaluate_freq": 20,
+        "save_path": "save/DHN",
+        "epoch": 280,
+        "evaluate_freq": 40,
         "GPU": True,
         # "GPU":False,
         "bit_list": [48, 32, 24, 12],
@@ -48,9 +49,9 @@ def get_config():
     elif config["dataset"] == "imagenet":
         config["topK"] = 1000
         config["n_class"] = 100
-    config["data_path"] = "../dataset/" + config["dataset"] + "/"
+    config["data_path"] = "/dataset/" + config["dataset"] + "/"
     if config["dataset"][:7] == "nuswide":
-        config["data_path"] = "../dataset/nus_wide/"
+        config["data_path"] = "X:/code/remote/sh/dataset/nus_wide/"
     config["data"] = {
         "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
         "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},
@@ -133,6 +134,15 @@ def train_val(config, bit):
             print(config)
             if mAP > Best_mAP:
                 Best_mAP = mAP
+            if "save_path" in config:
+                if not os.path.exists(config["save_path"]):
+                    os.makedirs(config["save_path"])
+                print("save in ", config["save_path"])
+                np.save(os.path.join(config["save_path"], config["dataset"] + str(mAP) + "-" + "trn_binary.npy"),
+                        trn_binary.numpy())
+                torch.save(net.state_dict(),
+                           os.path.join(config["save_path"], config["dataset"] + "-" + str(mAP) + "-model.pt"))
+
     print("bit:%d,Best MAP:%.3f" % (bit, Best_mAP))
 
 

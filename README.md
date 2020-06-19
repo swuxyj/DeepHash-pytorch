@@ -31,7 +31,7 @@ paper [Deep Hashing Network for Efficient Similarity Retrieval](http://ise.thss.
 code [DeepHash-tensorflow](https://github.com/thulab/DeepHash)
 
 
-# Mean Average Precision,48 bits.
+# Mean Average Precision,48 bits[AlexNet].
 <table>
     <tr>
         <td>Algorithms</td><td>dataset</td><td>this impl.</td><td>paper</td>
@@ -52,6 +52,9 @@ code [DeepHash-tensorflow](https://github.com/thulab/DeepHash)
         <td >HashNet</td><td >nus wide81</td> <td >0.764</td> <td >0.7114</td>
     </tr>
     <tr>
+        <td ></td><td >nus wide21</td> <td >0.783</td> <td >-</td>
+    </tr>
+    <tr>
         <td ></td><td >imagenet</td> <td >0.600</td> <td >0.6633</td>
     </tr>
     <tr>
@@ -61,3 +64,8 @@ code [DeepHash-tensorflow](https://github.com/thulab/DeepHash)
         <td ></td><td >nus wide21</td> <td >0.816</td> <td >0.758</td>
     </tr>
 </table>
+
+# Pretrained models and Example notebooks
+Download pretrain model(DHN) and encoded of retrieval data set  [here](https://drive.google.com/drive/folders/1wCQKmi1rJT_WyUyI4OnCAqyzeZTMe_zK)  
+The example code at [demo.ipynb](https://github.com/swuxyj/DeepHash-pytorch/blob/master/demo.ipynb)  
+![image](https://github.com/swuxyj/DeepHash-pytorch/blob/master/result.png)

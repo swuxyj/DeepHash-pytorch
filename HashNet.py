@@ -1,5 +1,5 @@
 from utils.tools import *
-from models.hashnet import *
+from network import *
 import matplotlib.pyplot as plt
 import torch
 import torch.optim as optim
@@ -8,10 +8,13 @@ import time
 plt.switch_backend('agg')
 torch.multiprocessing.set_sharing_strategy('file_system')
 
+
 def get_config():
     config = {
         # "optimizer":{"type":  optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
-        "optimizer": {"type": optim.SGD, "optim_params": {"lr": 0.0003, "weight_decay": 10 ** -5, "momentum": 0.9, "nesterov": True}, "lr_type": "step"},
+        "optimizer": {"type": optim.SGD,
+                      "optim_params": {"lr": 0.0003, "weight_decay": 10 ** -5, "momentum": 0.9, "nesterov": True},
+                      "lr_type": "step"},
         "info": "[HashNet]",
         "step_continuation": 20,
         "resize_size": 256,
@@ -20,7 +23,7 @@ def get_config():
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
-        "dataset":"nuswide_21",
+        "dataset": "nuswide_21",
         # "dataset":"coco",
         # "dataset":"nuswide_81",
         # "dataset":"imagenet",
@@ -46,17 +49,18 @@ def get_config():
     elif config["dataset"] == "imagenet":
         config["topK"] = 1000
         config["n_class"] = 100
-    config["data_path"] = "../dataset_png/" + config["dataset"] + "/"
+    config["data_path"] = "/dataset/" + config["dataset"] + "/"
     if config["dataset"][:7] == "nuswide":
-        config["data_path"] = "../dataset_png/nus_wide/"
+        config["data_path"] = "/dataset/nus_wide/"
     config["data"] = {
         "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
         "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},
         "test": {"list_path": "./data/" + config["dataset"] + "/test.txt", "batch_size": config["batch_size"]}}
     return config
 
+
 # from https://github.com/thuml/HashNet/issues/17
-def pairwise_loss(outputs1, outputs2,label1,label2, config):
+def pairwise_loss(outputs1, outputs2, label1, label2, config):
     similarity = (label1 @ label2.t() > 0).float()
     dot_product = config["alpha"] * outputs1 @ outputs2.t()
 
@@ -80,9 +84,10 @@ def pairwise_loss(outputs1, outputs2,label1,label2, config):
 
     return loss
 
+
 def train_val(config, bit):
     train_loader, test_loader, dataset_loader, num_train, num_test = get_data(config)
-    net = config["net"](bit)
+    net = config["net"](bit, "HashNet")
     if config["GPU"]:
         net = net.cuda()
 
@@ -95,11 +100,11 @@ def train_val(config, bit):
         L = L.cuda()
 
     for epoch in range(config["epoch"]):
-        net.scale = (epoch // config["step_continuation"]  + 1) ** 0.5
+        net.scale = (epoch // config["step_continuation"] + 1) ** 0.5
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
 
         print("%s[%2d/%2d][%s] bit:%d, dataset:%s, scale:%.3f, training...." % (
-            config["info"], epoch + 1, config["epoch"], current_time, bit, config["dataset"],net.scale), end="")
+            config["info"], epoch + 1, config["epoch"], current_time, bit, config["dataset"], net.scale), end="")
 
         net.train()
         train_loss = 0
@@ -111,7 +116,7 @@ def train_val(config, bit):
             optimizer.zero_grad()
             b = net(image)
 
-            U[ind,: ] = b.data
+            U[ind, :] = b.data
             L[ind, :] = label.float()
 
             loss = pairwise_loss(b, U, label.float(), L, config)
