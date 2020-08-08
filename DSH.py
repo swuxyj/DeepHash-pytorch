@@ -1,16 +1,18 @@
 from utils.tools import *
 from network import *
+
 import os
-import matplotlib.pyplot as plt
 import torch
 import torch.optim as optim
 import time
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-plt.switch_backend('agg')
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
+# DSH(CVPR2016)
+# paper [Deep Supervised Hashing for Fast Image Retrieval](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Liu_Deep_Supervised_Hashing_CVPR_2016_paper.pdf)
+# code [DSH-pytorch](https://github.com/weixu000/DSH-pytorch)
 
 def get_config():
     config = {
@@ -20,14 +22,15 @@ def get_config():
         "info": "[DSH]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 256,
+        "batch_size": 64,
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
-        "dataset": "nuswide_21",
-        # "dataset":"coco",
-        # "dataset":"nuswide_81",
-        # "dataset":"imagenet",
+        # "dataset": "nuswide_21",
+        # "dataset": "nuswide_21_m",
+        # "dataset": "nuswide_81_m",
+        # "dataset": "coco",
+        "dataset":"imagenet",
         "epoch": 90,
         "test_map": 15,
         "save_path": "save/DSH",
@@ -35,57 +38,48 @@ def get_config():
         # "GPU":False,
         "bit_list": [48],
     }
-    if config["dataset"] == "cifar10":
-        config["topK"] = 54000
-        config["n_class"] = 10
-    elif config["dataset"] == "nuswide_21":
-        config["topK"] = 5000
-        config["n_class"] = 21
-    elif config["dataset"] == "nuswide_81":
-        config["topK"] = 5000
-        config["n_class"] = 81
-    elif config["dataset"] == "coco":
-        config["topK"] = 5000
-        config["n_class"] = 91
-    elif config["dataset"] == "imagenet":
-        config["topK"] = 1000
-        config["n_class"] = 100
-    config["data_path"] = "/dataset/" + config["dataset"] + "/"
-    if config["dataset"][:7] == "nuswide":
-        config["data_path"] = "/dataset/nus_wide/"
-    config["data"] = {
-        "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
-        "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},
-        "test": {"list_path": "./data/" + config["dataset"] + "/test.txt", "batch_size": config["batch_size"]}}
+    config = config_dataset(config)
     return config
 
 
-def calc_loss(x1, x2, y1, y2, config):
-    dist = (x1.unsqueeze(1) - x2.unsqueeze(0)).pow(2).sum(dim=2)
-    y = (y1 @ y2.t() == 0).float()
+class DSHLoss(torch.nn.Module):
+    def __init__(self, config, bit):
+        super(DSHLoss, self).__init__()
+        self.m = 2 * bit
+        self.U = torch.zeros(config["num_train"], bit).float()
+        self.Y = torch.zeros(config["num_train"], config["n_class"]).float()
 
-    loss = (1 - y) / 2 * dist + y / 2 * (config["m"] - dist).clamp(min=0)
-    loss1 = loss.mean()
-    loss2 = config["alpha"] * (1 - x1.sign()).abs().mean()
+        if config["GPU"]:
+            self.U = self.U.cuda()
+            self.Y = self.Y.cuda()
 
-    return loss1 + loss2
+    def forward(self, u, y, ind, config):
+        self.U[ind, :] = u.data
+        self.Y[ind, :] = y.float()
+
+        dist = (u.unsqueeze(1) - self.U.unsqueeze(0)).pow(2).sum(dim=2)
+        y = (y @ self.Y.t() == 0).float()
+
+        loss = (1 - y) / 2 * dist + y / 2 * (self.m - dist).clamp(min=0)
+        loss1 = loss.mean()
+        loss2 = config["alpha"] * (1 - u.sign()).abs().mean()
+
+        return loss1 + loss2
 
 
 def train_val(config, bit):
-    config["m"] = 2 * bit
+
     train_loader, test_loader, dataset_loader, num_train, num_test = get_data(config)
+    config["num_train"] = num_train
     net = config["net"](bit)
     if config["GPU"]:
         net = net.cuda()
 
     optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
 
-    U = torch.zeros(num_train, bit).float()
-    L = torch.zeros(num_train, config["n_class"]).float()
+    criterion = DSHLoss(config, bit)
 
-    if config["GPU"]:
-        U = U.cuda()
-        L = L.cuda()
+    Best_mAP = 0
 
     for epoch in range(config["epoch"]):
 
@@ -102,12 +96,9 @@ def train_val(config, bit):
                 image, label = image.cuda(), label.cuda()
 
             optimizer.zero_grad()
-            b = net(image)
+            u = net(image)
 
-            U[ind, :] = b.data
-            L[ind, :] = label.float()
-
-            loss = calc_loss(b, U, label.float(), L, config)
+            loss = criterion(u, label.float(), ind, config)
             train_loss += loss.item()
 
             loss.backward()
@@ -121,26 +112,27 @@ def train_val(config, bit):
             # print("calculating test binary code......")
             tst_binary, tst_label = compute_result(test_loader, net, usegpu=config["GPU"])
 
-            # print("calculating dataset binary code.......")
-            # trn_binary, trn_label = compute_result(train_loader, net, usegpu=config["GPU"])
+            # print("calculating dataset binary code.......")\
             trn_binary, trn_label = compute_result(dataset_loader, net, usegpu=config["GPU"])
 
             # print("calculating map.......")
-
             mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),
                              config["topK"])
-            print(
-                "%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f" % (config["info"], epoch + 1, bit, config["dataset"], mAP))
-            print(config)
-            if "save_path" in config:
-                if not os.path.exists(config["save_path"]):
-                    os.makedirs(config["save_path"])
-                print("save in ", config["save_path"])
-                np.save(os.path.join(config["save_path"], config["dataset"] + str(mAP) + "-" + "trn_binary.npy"),
-                        trn_binary.numpy())
-                torch.save(net.state_dict(),
-                           os.path.join(config["save_path"], config["dataset"] + "-" + str(mAP) + "-model.pt"))
 
+            if mAP > Best_mAP:
+                Best_mAP = mAP
+
+                if "save_path" in config:
+                    if not os.path.exists(config["save_path"]):
+                        os.makedirs(config["save_path"])
+                    print("save in ", config["save_path"])
+                    np.save(os.path.join(config["save_path"], config["dataset"] + str(mAP) + "-" + "trn_binary.npy"),
+                            trn_binary.numpy())
+                    torch.save(net.state_dict(),
+                               os.path.join(config["save_path"], config["dataset"] + "-" + str(mAP) + "-model.pt"))
+            print("%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f, Best MAP: %.3f" % (
+                config["info"], epoch + 1, bit, config["dataset"], mAP, Best_mAP))
+            print(config)
 
 
 if __name__ == "__main__":

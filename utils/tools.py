@@ -5,6 +5,36 @@ import torch
 from PIL import Image
 from tqdm import tqdm
 
+
+def config_dataset(config):
+    if config["dataset"] == "cifar10":
+        config["topK"] = -1
+        config["n_class"] = 10
+    elif config["dataset"] in ["nuswide_21", "nuswide_21_m"]:
+        config["topK"] = 5000
+        config["n_class"] = 21
+    elif config["dataset"] == "nuswide_81_m":
+        config["topK"] = 5000
+        config["n_class"] = 81
+    elif config["dataset"] == "coco":
+        config["topK"] = 5000
+        config["n_class"] = 80
+    elif config["dataset"] == "imagenet":
+        config["topK"] = 1000
+        config["n_class"] = 100
+    config["data_path"] = "/dataset/" + config["dataset"] + "/"
+    if config["dataset"] == "nuswide_21":
+        config["data_path"] = "/dataset/NUS-WIDE/"
+    if config["dataset"] in ["nuswide_21_m", "nuswide_81_m"]:
+        config["data_path"] = "/dataset/nus_wide_m/"
+    if config["dataset"][:4] == "coco":
+        config["data_path"] = "/dataset/COCO_2014/"
+    config["data"] = {
+        "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
+        "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},
+        "test": {"list_path": "./data/" + config["dataset"] + "/test.txt", "batch_size": config["batch_size"]}}
+    return config
+
 class ImageList(object):
 
     def __init__(self, data_path, image_list, transform):
@@ -19,6 +49,7 @@ class ImageList(object):
 
     def __len__(self):
         return len(self.imgs)
+
 
 def image_transform(resize_size, crop_size, data_set):
     if data_set == "train_set":
@@ -51,6 +82,7 @@ def get_data(config):
     return dset_loaders["train_set"], dset_loaders["test"], dset_loaders["database"], len(dsets["train_set"]), len(
         dsets["test"])
 
+
 def compute_result(dataloader, net, usegpu=False):
     bs, clses = [], []
     net.eval()
@@ -67,6 +99,7 @@ def CalcHammingDist(B1, B2):
     q = B2.shape[1]
     distH = 0.5 * (q - np.dot(B1, B2.transpose()))
     return distH
+
 
 def CalcTopMap(rB, qB, retrievalL, queryL, topk):
     num_query = queryL.shape[0]

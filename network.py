@@ -1,10 +1,9 @@
 import torch.nn as nn
-import torch
 from torchvision import models
 
 
 class AlexNet(nn.Module):
-    def __init__(self, hash_bit, activation=None):
+    def __init__(self, hash_bit):
         super(AlexNet, self).__init__()
 
         model_alexnet = models.alexnet(pretrained=True)
@@ -26,20 +25,11 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(4096, hash_bit),
         )
-        self.scale = 1.0
-
-        if activation == "HashNet":
-            self.activation = nn.Tanh()
-        elif activation == None:
-            self.activation = nn.Sequential()
-        else:
-            self.activation = nn.Sigmoid()
 
     def forward(self, x):
         x = self.features(x)
         x = x.view(x.size(0), 256 * 6 * 6)
         x = self.hash_layer(x)
-        self.activation(x)
         return x
 
 
@@ -47,9 +37,9 @@ resnet_dict = {"ResNet18": models.resnet18, "ResNet34": models.resnet34, "ResNet
                "ResNet101": models.resnet101, "ResNet152": models.resnet152}
 
 class ResNet(nn.Module):
-    def __init__(self, hash_bit, activation=None):
+    def __init__(self, hash_bit, res_model="ResNet50"):
         super(ResNet, self).__init__()
-        model_resnet = resnet_dict["ResNet50"](pretrained=True)
+        model_resnet = resnet_dict[res_model](pretrained=True)
         self.conv1 = model_resnet.conv1
         self.bn1 = model_resnet.bn1
         self.relu = model_resnet.relu
@@ -66,17 +56,8 @@ class ResNet(nn.Module):
         self.hash_layer.weight.data.normal_(0, 0.01)
         self.hash_layer.bias.data.fill_(0.0)
 
-        if activation == "HashNet":
-            self.activation = nn.Tanh()
-        elif activation == None:
-            self.activation = nn.Sequential()
-        else:
-            self.activation = nn.Sigmoid()
-        self.scale = 1.0
-
     def forward(self, x):
         x = self.feature_layers(x)
         x = x.view(x.size(0), -1)
         y = self.hash_layer(x)
-        y = self.activation(self.scale * y)
         return y
