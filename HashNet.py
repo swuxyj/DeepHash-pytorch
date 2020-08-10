@@ -18,7 +18,7 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 def get_config():
     config = {
         "alpha": 0.1,
-        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}, "lr_type": "step"},
+        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.0001, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "info": "[HashNet]",
         "step_continuation": 20,
@@ -27,8 +27,8 @@ def get_config():
         "batch_size": 64,
         "net": AlexNet,
         # "net":ResNet,
-        # "dataset": "cifar10",
-        "dataset": "coco",
+        "dataset": "cifar10",
+        # "dataset": "coco",
         # "dataset":"imagenet",
         # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
@@ -67,7 +67,7 @@ class HashNetLoss(torch.nn.Module):
         mask_positive = similarity.data > 0
         mask_negative = similarity.data <= 0
 
-        exp_loss = (1 + (-dot_product.abs()).exp() + dot_product.clamp(min=0)).log() - similarity * dot_product
+        exp_loss = (1 + (-dot_product.abs()).exp()).log() + dot_product.clamp(min=0) - similarity * dot_product
 
         # weight
         S1 = mask_positive.float().sum()

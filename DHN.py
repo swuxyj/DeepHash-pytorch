@@ -59,7 +59,7 @@ class DHNLoss(torch.nn.Module):
         s = (y @ self.Y.t() > 0).float()
         inner_product = u @ self.U.t() * 0.5
 
-        likelihood_loss = (1 + (-inner_product.abs()).exp() + inner_product.clamp(min=0)).log() - s * inner_product
+        likelihood_loss = (1 + (-inner_product.abs()).exp()).log() + inner_product.clamp(min=0) - s * inner_product
 
         likelihood_loss = likelihood_loss.mean()
 
