@@ -10,30 +10,32 @@ import numpy as np
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
-# DHN(AAAI2016)
-# paper [Deep Hashing Network for Efficient Similarity Retrieval](http://ise.thss.tsinghua.edu.cn/~mlong/doc/deep-hashing-network-aaai16.pdf)
-# code [DeepHash-tensorflow](https://github.com/thulab/DeepHash)
+
+# ISDH(arxiv2018)
+# paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https://arxiv.org/abs/1803.02987v1)
 
 def get_config():
     config = {
-        "alpha": 0.1,
+        "alpha": 0.5,
+        "gamma": 10,
+        "lambda": 0.1,
         # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
-        "info": "[DHN]",
+        "info": "[ISDH]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 64,
+        "batch_size": 128,
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
-        # "dataset": "nuswide_21",
+        # "dataset": "coco",
+        # "dataset":"imagenet",
+        "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",
-        "dataset": "coco",
-        # "dataset":"imagenet",
-        "epoch": 90,
+        "epoch": 150,
         "test_map": 15,
-        "save_path": "save/DHN",
+        "save_path": "save/ISDH",
         "GPU": True,
         # "GPU":False,
         "bit_list": [48],
@@ -42,9 +44,9 @@ def get_config():
     return config
 
 
-class DHNLoss(torch.nn.Module):
+class DPSHLoss(torch.nn.Module):
     def __init__(self, config, bit):
-        super(DHNLoss, self).__init__()
+        super(DPSHLoss, self).__init__()
         self.U = torch.zeros(config["num_train"], bit).float()
         self.Y = torch.zeros(config["num_train"], config["n_class"]).float()
 
@@ -53,19 +55,25 @@ class DHNLoss(torch.nn.Module):
             self.Y = self.Y.cuda()
 
     def forward(self, u, y, ind, config):
+        u = u / (u.abs() + 1)
         self.U[ind, :] = u.data
         self.Y[ind, :] = y.float()
 
-        s = (y @ self.Y.t() > 0).float()
-        inner_product = u @ self.U.t() * 0.5
+        s = y @ self.Y.t()
+        norm = y.pow(2).sum(dim=1, keepdim=True).pow(0.5) @ self.Y.pow(2).sum(dim=1, keepdim=True).pow(0.5).t()
+        s = s / (norm + 0.00001)
 
-        likelihood_loss = (1 + (-inner_product.abs()).exp() + inner_product.clamp(min=0)).log() - s * inner_product
+        M = (s == 0.).float() + (s == 1.).float()
 
-        likelihood_loss = likelihood_loss.mean()
+        inner_product = config["alpha"] * u @ self.U.t()
 
-        quantization_loss = config["alpha"] * (u.abs() - 1).abs().mean()
+        log_loss = torch.log(1 + torch.exp(-inner_product.abs())) + inner_product.clamp(min=0) - s * inner_product
+        mse_loss = (s - torch.sigmoid(inner_product)).pow(2)
 
-        return likelihood_loss + quantization_loss
+        loss1 = (config["gamma"] * M * log_loss + (1 - M) * mse_loss).mean()
+        loss2 = config["lambda"] * (u.abs() - 1).abs().mean()
+
+        return loss1 + loss2
 
 
 def train_val(config, bit):
@@ -77,7 +85,7 @@ def train_val(config, bit):
 
     optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
 
-    criterion = DHNLoss(config, bit)
+    criterion = DPSHLoss(config, bit)
 
     Best_mAP = 0
 

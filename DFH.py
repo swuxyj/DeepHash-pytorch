@@ -83,7 +83,7 @@ class DFHLoss(torch.nn.Module):
 
         s = (y @ self.Y > 0).float()
         inner_product = u @ self.U * 0.5
-        inner_product = torch.clamp(inner_product, min=-100, max=50)
+        inner_product = inner_product.clamp(min=-100, max=50)
         metric_loss = ((1 - s) * torch.log(1 + torch.exp(config["m"] + inner_product))
                        + s * torch.log(1 + torch.exp(config["m"] - inner_product))).mean()
         # metric_loss = (torch.log(1 + torch.exp(theta)) - S * theta).mean()  # Without Margin

@@ -53,7 +53,15 @@ code [DTSH](https://github.com/Minione/DTSH)
 
 DSDH(NIPS2017)  
 paper [Deep Supervised Discrete Hashing](https://papers.nips.cc/paper/6842-deep-supervised-discrete-hashing.pdf)  
-code [DSDH_PyTorch](https://github.com/TreezzZ/DSDH_PyTorch) 
+code [DSDH_PyTorch](https://github.com/TreezzZ/DSDH_PyTorch)
+
+GreedyHash(NIPS2018)  
+paper [Greedy Hash: Towards Fast Optimization for Accurate Hash Coding in CNN](https://papers.nips.cc/paper/7360-greedy-hash-towards-fast-optimization-for-accurate-hash-coding-in-cnn.pdf)  
+code [GreedyHash](https://github.com/ssppp/GreedyHash) 
+
+ISDH(arxiv2018)
+paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https://arxiv.org/abs/1803.02987v1)
+
 # Mean Average Precision,48 bits[AlexNet].
 
 
@@ -147,6 +155,12 @@ code [DSDH_PyTorch](https://github.com/TreezzZ/DSDH_PyTorch)
     </tr>
     <tr>
         <td ></td><td >imagenet</td> <td >0.519</td> <td >0.747</td>
+    </tr>
+    <tr>
+        <td >GreedyHash</td><td >cifar 10</td> <td >0.798</td> <td >0.822</td>
+    </tr>
+    <tr>
+        <td ></td><td >imagenet</td> <td >0.678</td> <td >0.688</td>
     </tr>
 </table>
 Due to time constraints, I cannot test many parameters  

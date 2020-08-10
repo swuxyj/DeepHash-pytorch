@@ -35,6 +35,7 @@ def config_dataset(config):
         "test": {"list_path": "./data/" + config["dataset"] + "/test.txt", "batch_size": config["batch_size"]}}
     return config
 
+
 class ImageList(object):
 
     def __init__(self, data_path, image_list, transform):
@@ -53,11 +54,10 @@ class ImageList(object):
 
 def image_transform(resize_size, crop_size, data_set):
     if data_set == "train_set":
-        step = [transforms.RandomHorizontalFlip()]
+        step = [transforms.RandomHorizontalFlip(), transforms.RandomCrop(crop_size)]
     else:
-        step = []
-    return transforms.Compose([transforms.Resize(resize_size),
-                               transforms.CenterCrop(crop_size)]
+        step = [transforms.CenterCrop(crop_size)]
+    return transforms.Compose([transforms.Resize(resize_size)]
                               + step +
                               [transforms.ToTensor(),
                                transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -66,14 +66,24 @@ def image_transform(resize_size, crop_size, data_set):
 
 
 def get_data(config):
+
     dsets = {}
     dset_loaders = {}
     data_config = config["data"]
 
     for data_set in ["train_set", "test", "database"]:
-        dsets[data_set] = ImageList(config["data_path"],
-                                    open(data_config[data_set]["list_path"]).readlines(), \
-                                    transform=image_transform(config["resize_size"], config["crop_size"], data_set))
+        if config["dataset"] == "cifar10":
+            cifar_transform = transforms.Compose([
+                transforms.Resize(config["crop_size"]),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+            dsets[data_set] = ImageList(config["data_path"],
+                                        open(data_config[data_set]["list_path"]).readlines(), transform=cifar_transform)
+        else:
+            dsets[data_set] = ImageList(config["data_path"],
+                                        open(data_config[data_set]["list_path"]).readlines(), \
+                                        transform=image_transform(config["resize_size"], config["crop_size"], data_set))
         print(data_set, len(dsets[data_set]))
         dset_loaders[data_set] = util_data.DataLoader(dsets[data_set], \
                                                       batch_size=data_config[data_set]["batch_size"], \

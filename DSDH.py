@@ -69,15 +69,9 @@ class DSDHLoss(torch.nn.Module):
         inner_product = u @ self.U * 0.5
         s = (y @ self.Y > 0).float()
 
-        if config["GPU"]:
-            log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product))) \
-                        + torch.max(inner_product, torch.FloatTensor([0.]).cuda())
-        else:
-            log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product))) \
-                        + torch.max(inner_product, torch.FloatTensor([0.]))
+        likelihood_loss = (1 + (-inner_product.abs()).exp() + inner_product.clamp(min=0)).log() - s * inner_product
 
-        loss = log_trick - s * inner_product
-        likehood_loss = loss.mean()
+        likelihood_loss = likelihood_loss.mean()
 
         # Classification loss
         cl_loss = (y.t() - self.W.t() @ self.B[:, ind]).pow(2).mean()
@@ -85,7 +79,7 @@ class DSDHLoss(torch.nn.Module):
         # Regularization loss
         reg_loss = self.W.pow(2).mean()
 
-        loss = likehood_loss + config["mu"] * cl_loss + config["nu"] * reg_loss
+        loss = likelihood_loss + config["mu"] * cl_loss + config["nu"] * reg_loss
         return loss
 
     def updateBandW(self):

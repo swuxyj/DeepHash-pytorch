@@ -10,6 +10,7 @@ import numpy as np
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
+
 # HashNet(ICCV2017)
 # paper [HashNet: Deep Learning to Hash by Continuation](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf)
 # code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)
@@ -55,7 +56,6 @@ class HashNetLoss(torch.nn.Module):
         self.scale = 1
 
     def forward(self, u, y, ind, config):
-
         u = torch.tanh(self.scale * u)
 
         self.U[ind, :] = u.data
@@ -66,21 +66,17 @@ class HashNetLoss(torch.nn.Module):
 
         mask_positive = similarity.data > 0
         mask_negative = similarity.data <= 0
-        if config["GPU"]:
-            exp_loss = torch.log(1 + torch.exp(-torch.abs(dot_product))) \
-                       + torch.max(dot_product, torch.FloatTensor([0.]).cuda()) - similarity * dot_product
-        else:
-            exp_loss = torch.log(1 + torch.exp(-torch.abs(dot_product))) \
-                       + torch.max(dot_product, torch.FloatTensor([0.])) - similarity * dot_product
+
+        exp_loss = (1 + (-dot_product.abs()).exp() + dot_product.clamp(min=0)).log() - similarity * dot_product
 
         # weight
-        S1 = torch.sum(mask_positive.float())
-        S0 = torch.sum(mask_negative.float())
+        S1 = mask_positive.float().sum()
+        S0 = mask_negative.float().sum()
         S = S0 + S1
         exp_loss[mask_positive] = exp_loss[mask_positive] * (S / S1)
         exp_loss[mask_negative] = exp_loss[mask_negative] * (S / S0)
 
-        loss = torch.sum(exp_loss) / S
+        loss = exp_loss.sum() / S
 
         return loss
 

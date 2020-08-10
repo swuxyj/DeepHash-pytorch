@@ -10,6 +10,7 @@ import numpy as np
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
+
 # DPSH(IJCAI2016)
 # paper [Feature Learning based Deep Supervised Hashing with Pairwise Labels](https://cs.nju.edu.cn/lwj/paper/IJCAI16_DPSH.pdf)
 # code [DPSH-pytorch](https://github.com/jiangqy/DPSH-pytorch)
@@ -28,7 +29,6 @@ def get_config():
         # "dataset": "cifar10",
         "dataset": "coco",
         # "dataset":"imagenet",
-        # "dataset":"nuswide_81",
         # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",
@@ -59,17 +59,14 @@ class DPSHLoss(torch.nn.Module):
 
         s = (y @ self.Y.t() > 0).float()
         inner_product = u @ self.U.t() * 0.5
-        if config["GPU"]:
-            log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product))) \
-                        + torch.max(inner_product, torch.FloatTensor([0.]).cuda())
-        else:
-            log_trick = torch.log(1 + torch.exp(-torch.abs(inner_product))) \
-                        + torch.max(inner_product, torch.FloatTensor([0.]))
-        loss = log_trick - s * inner_product
-        loss1 = loss.mean()
-        loss2 = config["alpha"] * (u - u.sign()).pow(2).mean()
 
-        return loss1 + loss2
+        likelihood_loss = (1 + (-inner_product.abs()).exp() + inner_product.clamp(min=0)).log() - s * inner_product
+
+        likelihood_loss = likelihood_loss.mean()
+
+        quantization_loss = config["alpha"] * (u - u.sign()).pow(2).mean()
+
+        return likelihood_loss + quantization_loss
 
 
 def train_val(config, bit):
