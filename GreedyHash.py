@@ -30,6 +30,7 @@ def get_config():
         # "net":ResNet,
         "dataset": "cifar10",
         # "dataset": "coco",
+        # "dataset": "nuswide_21",
         # "dataset": "imagenet",
         "epoch": 200,
         "test_map": 15,
@@ -54,7 +55,7 @@ class GreedyHashLoss(torch.nn.Module):
     def forward(self, u, onehot_y, ind, config):
         b = GreedyHashLoss.Hash.apply(u)
         # one-hot to label
-        y = onehot_y.topk(1)[1].squeeze(1)
+        y = onehot_y.argmax(axis=1)
         y_pre = self.fc(b)
         loss1 = self.criterion(y_pre, y)
         loss2 = config["alpha"] * (u.abs() - 1).pow(3).abs().mean()

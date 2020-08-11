@@ -22,6 +22,10 @@ def config_dataset(config):
     elif config["dataset"] == "imagenet":
         config["topK"] = 1000
         config["n_class"] = 100
+    elif config["dataset"] == "mirflickr":
+        config["topK"] = -1
+        config["n_class"] = 38
+
     config["data_path"] = "/dataset/" + config["dataset"] + "/"
     if config["dataset"] == "nuswide_21":
         config["data_path"] = "/dataset/NUS-WIDE/"

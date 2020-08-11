@@ -18,13 +18,19 @@ pyhon DSDH.py
 ```
  
 # Dataset
-You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch)    
-download cifar10(Lossless PNG format) [here](https://drive.google.com/open?id=1NZ5QKW2zqzN-RQ4VDpuOAb-UgcsTPUJK)  
-and download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)  
+You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch)  
+    
+download cifar10(Lossless PNG format) [here](https://drive.google.com/open?id=1NZ5QKW2zqzN-RQ4VDpuOAb-UgcsTPUJK)
+  
+and download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)
+  
 NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.  
-269,648 images in NUS-WIDE , and 195834 images which are associated with 21 most frequent concepts.   
-NUS-WIDE-m has 223,496 images,and  NUS-WIDE-m  is used in [HashNet(ICCV2017)](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf) and code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)  
 
+269,648 images in NUS-WIDE , and 195834 images which are associated with 21 most frequent concepts.     
+
+NUS-WIDE-m has 223,496 images,and  NUS-WIDE-m  is used in [HashNet(ICCV2017)](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf) and code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)    
+
+download [mirflickr](https://press.liacs.nl/mirflickr/mirdownload.html) , and use ./data/mirflickr/code.py to randomly select 1000 images as the test query set and 4000 images as the train set. 
 # Paper And Code
 It is difficult to implement all by myself, so I made some modifications based on these codes  
 DSH(CVPR2016)  
@@ -162,12 +168,14 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
     <tr>
         <td ></td><td >imagenet</td> <td >0.678</td> <td >0.688</td>
     </tr>
+    <tr>
+        <td ></td><td >ms coco</td> <td >0.728</td> <td >-</td>
+    </tr>
+    <tr>
+        <td ></td><td >nuswide_21</td> <td >0.793</td> <td >-</td>
+    </tr>
 </table>
 Due to time constraints, I cannot test many parameters  
 
 "DPSH 0.812 *" denotes re-running the code provided by they authors of DPSH (said in [Deep Supervised Discrete Hashing](https://papers.nips.cc/paper/6842-deep-supervised-discrete-hashing.pdf))  
 
-# Pretrained models and Example notebooks
-Download pretrain model(DHN) and encoded of retrieval data set  [here](https://drive.google.com/drive/folders/1wCQKmi1rJT_WyUyI4OnCAqyzeZTMe_zK)  
-The example code at [demo.ipynb](https://github.com/swuxyj/DeepHash-pytorch/blob/master/demo.ipynb)  
-![image](https://github.com/swuxyj/DeepHash-pytorch/blob/master/result.png)

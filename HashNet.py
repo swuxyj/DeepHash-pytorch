@@ -18,7 +18,7 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 def get_config():
     config = {
         "alpha": 0.1,
-        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.0001, "weight_decay": 10 ** -5}, "lr_type": "step"},
+        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.001, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "info": "[HashNet]",
         "step_continuation": 20,

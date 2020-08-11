@@ -14,15 +14,15 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # ISDH(arxiv2018)
 # paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https://arxiv.org/abs/1803.02987v1)
 # code [ISDH-Tensorflow](https://github.com/pectinid16/ISDH-Tensorflow)
-
+# [ISDH] epoch:60, bit:48, dataset:nuswide_21, MAP:0.825, Best MAP: 0.825
 def get_config():
     config = {
         "alpha": 0.5,
-        "gamma": 10,
+        "gamma": 0.1,
         "lambda": 0.1,
         # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
-        "info": "[ISDH]",
+        "info": "[IDHN]",
         "resize_size": 256,
         "crop_size": 224,
         "batch_size": 128,
@@ -31,12 +31,13 @@ def get_config():
         # "dataset": "cifar10",
         # "dataset": "coco",
         # "dataset":"imagenet",
-        "dataset": "nuswide_21",
+        "dataset": "mirflickr",
+        # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",
         "epoch": 150,
         "test_map": 15,
-        "save_path": "save/ISDH",
+        "save_path": "save/IDHN",
         "GPU": True,
         # "GPU":False,
         "bit_list": [48],
@@ -48,6 +49,7 @@ def get_config():
 class DPSHLoss(torch.nn.Module):
     def __init__(self, config, bit):
         super(DPSHLoss, self).__init__()
+        self.q = bit
         self.U = torch.zeros(config["num_train"], bit).float()
         self.Y = torch.zeros(config["num_train"], config["n_class"]).float()
 
@@ -69,9 +71,10 @@ class DPSHLoss(torch.nn.Module):
         inner_product = config["alpha"] * u @ self.U.t()
 
         log_loss = torch.log(1 + torch.exp(-inner_product.abs())) + inner_product.clamp(min=0) - s * inner_product
-        mse_loss = (s - torch.sigmoid(inner_product)).pow(2)
 
-        loss1 = (config["gamma"] * M * log_loss + (1 - M) * mse_loss).mean()
+        mse_loss = (inner_product + self.q - 2 * s * self.q).pow(2)
+
+        loss1 = (M * log_loss + config["gamma"] * (1 - M) * mse_loss).mean()
         loss2 = config["lambda"] * (u.abs() - 1).abs().mean()
 
         return loss1 + loss2
