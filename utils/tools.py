@@ -25,14 +25,19 @@ def config_dataset(config):
     elif config["dataset"] == "mirflickr":
         config["topK"] = -1
         config["n_class"] = 38
+    elif config["dataset"] == "voc2012":
+        config["topK"] = -1
+        config["n_class"] = 20
 
     config["data_path"] = "/dataset/" + config["dataset"] + "/"
     if config["dataset"] == "nuswide_21":
         config["data_path"] = "/dataset/NUS-WIDE/"
     if config["dataset"] in ["nuswide_21_m", "nuswide_81_m"]:
         config["data_path"] = "/dataset/nus_wide_m/"
-    if config["dataset"][:4] == "coco":
+    if config["dataset"] == "coco":
         config["data_path"] = "/dataset/COCO_2014/"
+    if config["dataset"] == "voc2012":
+        config["data_path"] = "/dataset/"
     config["data"] = {
         "train_set": {"list_path": "./data/" + config["dataset"] + "/train.txt", "batch_size": config["batch_size"]},
         "database": {"list_path": "./data/" + config["dataset"] + "/database.txt", "batch_size": config["batch_size"]},

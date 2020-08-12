@@ -29,7 +29,9 @@ def get_config():
         # "net":ResNet,
         # "dataset": "cifar10",
         # "dataset": "coco",
-        "dataset":"imagenet",
+        # "dataset":"imagenet",
+        "dataset": "mirflickr",
+        # "dataset": "voc2012
         # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",

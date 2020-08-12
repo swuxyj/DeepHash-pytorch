@@ -11,10 +11,12 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-# ISDH(arxiv2018)
-# paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https://arxiv.org/abs/1803.02987v1)
-# code [ISDH-Tensorflow](https://github.com/pectinid16/ISDH-Tensorflow)
-# [ISDH] epoch:60, bit:48, dataset:nuswide_21, MAP:0.825, Best MAP: 0.825
+# IDHN(TMM2019)
+# paper [Improved Deep Hashing with Soft Pairwise Similarity for Multi-label Image Retrieval](https://arxiv.org/abs/1803.02987)
+# code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
+
+# [IDHN] epoch:75, bit:48, dataset:mirflickr, MAP:0.740, Best MAP: 0.740
+
 def get_config():
     config = {
         "alpha": 0.5,
@@ -31,7 +33,8 @@ def get_config():
         # "dataset": "cifar10",
         # "dataset": "coco",
         # "dataset":"imagenet",
-        "dataset": "mirflickr",
+        # "dataset": "mirflickr",
+        "dataset": "voc2012",
         # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",

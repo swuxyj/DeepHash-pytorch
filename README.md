@@ -30,7 +30,8 @@ NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.
 
 NUS-WIDE-m has 223,496 images,and  NUS-WIDE-m  is used in [HashNet(ICCV2017)](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf) and code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)    
 
-download [mirflickr](https://press.liacs.nl/mirflickr/mirdownload.html) , and use ./data/mirflickr/code.py to randomly select 1000 images as the test query set and 4000 images as the train set. 
+download [mirflickr](https://press.liacs.nl/mirflickr/mirdownload.html) , and use ./data/mirflickr/code.py to randomly select 1000 images as the test query set and 4000 images as the train set.
+ 
 # Paper And Code
 It is difficult to implement all by myself, so I made some modifications based on these codes  
 DSH(CVPR2016)  
@@ -65,8 +66,13 @@ GreedyHash(NIPS2018)
 paper [Greedy Hash: Towards Fast Optimization for Accurate Hash Coding in CNN](https://papers.nips.cc/paper/7360-greedy-hash-towards-fast-optimization-for-accurate-hash-coding-in-cnn.pdf)  
 code [GreedyHash](https://github.com/ssppp/GreedyHash) 
 
-ISDH(arxiv2018)
-paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https://arxiv.org/abs/1803.02987v1)
+ISDH(arxiv2018)  
+paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https://arxiv.org/abs/1803.02987v1)  
+code [ISDH-Tensorflow](https://github.com/pectinid16/ISDH-Tensorflow)
+
+IDHN(TMM2019)  
+paper [Improved Deep Hashing with Soft Pairwise Similarity for Multi-label Image Retrieval](https://arxiv.org/abs/1803.02987)  
+code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
 
 # Mean Average Precision,48 bits[AlexNet].
 
@@ -88,6 +94,9 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
         <td ></td><td >imagenet</td> <td >0.576</td> <td >-</td>
     </tr>
     <tr>
+        <td ></td><td >mirflickr</td> <td >0.735</td> <td >-</td>
+    </tr>
+    <tr>
         <td >DPSH</td><td >cifar10</td> <td >0.775</td> <td >0.757</td>
     </tr>
     <tr>
@@ -98,6 +107,12 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
     </tr>
     <tr>
         <td ></td><td >ms coco</td> <td >0.711</td> <td >-</td>
+    </tr>
+    <tr>
+        <td ></td><td >voc2012</td> <td >0.608</td> <td >-</td>
+    </tr>
+    <tr>
+        <td ></td><td >mirflickr</td> <td >0.781</td> <td >-</td>
     </tr>
     <tr>
         <td >HashNet</td><td >cifar10</td> <td >0.782</td> <td >-</td>
@@ -127,6 +142,9 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
         <td ></td><td >ms coco</td> <td >0.712</td> <td >-</td>
     </tr>
     <tr>
+        <td ></td><td >mirflickr</td> <td >0.775</td> <td >-</td>
+    </tr>
+    <tr>
         <td >DSDH</td><td >cifar10</td> <td >0.755</td> <td >0.820</td>
     </tr>
     <tr>
@@ -137,6 +155,9 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
     </tr>
     <tr>
         <td ></td><td >ms coco</td> <td >0.681</td> <td >-</td>
+    </tr>
+    <tr>
+        <td ></td><td >mirflickr</td> <td >0.765</td> <td >-</td>
     </tr>
     <tr>
         <td >DTSH</td><td >cifar 10</td> <td >0.800</td> <td >0.774</td>
@@ -151,6 +172,9 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
         <td ></td><td >imagenet</td> <td >0.631</td> <td >-</td>
     </tr>
     <tr>
+        <td ></td><td >mirflickr</td> <td >0.753</td> <td >-</td>
+    </tr>
+    <tr>
         <td >DFH</td><td >cifar 10</td> <td >0.783</td> <td >0.844</td>
     </tr>
     <tr>
@@ -161,6 +185,9 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
     </tr>
     <tr>
         <td ></td><td >imagenet</td> <td >0.519</td> <td >0.747</td>
+    </tr>
+    <tr>
+        <td ></td><td >mirflickr</td> <td >0.766</td> <td >-</td>
     </tr>
     <tr>
         <td >GreedyHash</td><td >cifar 10</td> <td >0.798</td> <td >0.822</td>
@@ -175,7 +202,7 @@ paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https:/
         <td ></td><td >nuswide_21</td> <td >0.793</td> <td >-</td>
     </tr>
 </table>
-Due to time constraints, I cannot test many parameters  
+Due to time constraints, I can't test many hyper-parameters  
 
 "DPSH 0.812 *" denotes re-running the code provided by they authors of DPSH (said in [Deep Supervised Discrete Hashing](https://papers.nips.cc/paper/6842-deep-supervised-discrete-hashing.pdf))  
 
