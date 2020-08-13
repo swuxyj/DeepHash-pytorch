@@ -27,10 +27,10 @@ def get_config():
         "batch_size": 128,
         "net": AlexNet,
         # "net":ResNet,
-        # "dataset": "cifar10",
+        "dataset": "cifar13",
         # "dataset": "coco",
         # "dataset":"imagenet",
-        "dataset": "mirflickr",
+        # "dataset": "mirflickr",
         # "dataset": "voc2012
         # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",

@@ -31,7 +31,9 @@ def get_config():
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
-        "dataset": "mirflickr",
+        # "dataset": "cifar10-1",
+        "dataset": "cifar10-2",
+        # "dataset": "mirflickr",
         # "dataset": "voc2012
         # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",

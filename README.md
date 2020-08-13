@@ -18,10 +18,13 @@ pyhon DSDH.py
 ```
  
 # Dataset
+There are three different configurations for cifar10  
+- config["dataset"]="cifar10" will use 1000 images (100 images per class) as the query set, 5000 images( 500 images per class) as training set , the remaining 54,000 images are used as database.
+- config["dataset"]="cifar10-1" will use 1000 images (100 images per class) as the query set, the remaining 59,000 images are used as database, 5000 images( 500 images per class) are randomly sampled from the database as training set.  
+- config["dataset"]="cifar10-2" will use 10000 images (1000 images per class) as the query set, 50000 images( 5000 images per class) as training set , the remaining 54,000 images are used as database and training set.
+
 You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch)  
     
-download cifar10(Lossless PNG format) [here](https://drive.google.com/open?id=1NZ5QKW2zqzN-RQ4VDpuOAb-UgcsTPUJK)
-  
 and download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)
   
 NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.  
@@ -145,7 +148,7 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
         <td ></td><td >mirflickr</td> <td >0.775</td> <td >-</td>
     </tr>
     <tr>
-        <td >DSDH</td><td >cifar10</td> <td >0.755</td> <td >0.820</td>
+        <td >DSDH</td><td >cifar10-1</td> <td >0.755</td> <td >0.820</td>
     </tr>
     <tr>
         <td ></td><td >nus_wide_21</td> <td >0.819</td> <td >0.829</td>
@@ -175,7 +178,7 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
         <td ></td><td >mirflickr</td> <td >0.753</td> <td >-</td>
     </tr>
     <tr>
-        <td >DFH</td><td >cifar 10</td> <td >0.783</td> <td >0.844</td>
+        <td >DFH</td><td >cifar10-1</td> <td >0.785</td> <td >0.844</td>
     </tr>
     <tr>
         <td ></td><td >nus_wide_21</td> <td >0.834</td> <td >0.842</td>
@@ -190,7 +193,10 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
         <td ></td><td >mirflickr</td> <td >0.766</td> <td >-</td>
     </tr>
     <tr>
-        <td >GreedyHash</td><td >cifar 10</td> <td >0.798</td> <td >0.822</td>
+        <td >GreedyHash</td><td >cifar10-1</td> <td >0.796</td> <td >0.822</td>
+    </tr>
+    <tr>
+        <td ></td><td >cifar10-2</td> <td >0.932</td> <td >0.944</td>
     </tr>
     <tr>
         <td ></td><td >imagenet</td> <td >0.678</td> <td >0.688</td>

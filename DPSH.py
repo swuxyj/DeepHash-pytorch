@@ -18,17 +18,17 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 def get_config():
     config = {
         "alpha": 0.1,
-        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}, "lr_type": "step"},
+        # "optimizer": {"type": optim.SGD, "optim_params": {"lr": 0.005, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
         "info": "[DPSH]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 64,
+        "batch_size": 128,
         "net": AlexNet,
         # "net":ResNet,
-        # "dataset": "cifar10",
+        "dataset": "cifar13",
         # "dataset": "coco",
-        "dataset": "mirflickr",
+        # "dataset": "mirflickr",
         # "dataset": "voc2012",
         # "dataset":"imagenet",
         # "dataset": "nuswide_21",
@@ -62,7 +62,7 @@ class DPSHLoss(torch.nn.Module):
         s = (y @ self.Y.t() > 0).float()
         inner_product = u @ self.U.t() * 0.5
 
-        likelihood_loss = (1 + (-inner_product.abs()).exp()).log() + inner_product.clamp(min=0) - s * inner_product
+        likelihood_loss = (1 + (-(inner_product.abs())).exp()).log() + inner_product.clamp(min=0) - s * inner_product
 
         likelihood_loss = likelihood_loss.mean()
 
