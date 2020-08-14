@@ -31,21 +31,21 @@ def get_config():
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
-        "dataset": "cifar10-1",
+         "dataset": "cifar10-1",
         # "dataset": "cifar10-2",
         # "dataset": "coco",
         # "dataset": "mirflickr",
         # "dataset": "voc2012
-        # "dataset": "nuswide_21",
+        #"dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",
         # "dataset": "imagenet",
         "epoch": 150,
-        "test_map": 15,
-        "save_path": "save/DFH",
+        "test_map": 5,
+        # "save_path": "save/DFH",
         "GPU": True,
         # "GPU":False,
-        "bit_list": [48, 32, 24, 16],
+        "bit_list": [48],
     }
     config = config_dataset(config)
     return config

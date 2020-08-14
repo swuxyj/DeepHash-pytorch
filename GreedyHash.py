@@ -17,30 +17,36 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 
 def get_config():
     config = {
-        "alpha": 0.5,
-        "optimizer": {"type": optim.SGD, "epoch_lr_decrease": 60,
+        "alpha": 0.1,
+        "optimizer": {"type": optim.SGD, "epoch_lr_decrease": 30,
                       "optim_params": {"lr": 0.001, "weight_decay": 5e-4, "momentum": 0.9}},
 
-        # "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
-        "info": "[GreedyHash]",
+        # "optimizer": {"type": optim.RMSprop, "epoch_lr_decrease": 35,
+        #               "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
+
+        "info": "[改一下公式，改成和论文一致]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 64,
+        "batch_size": 128,
         "net": AlexNet,
         # "net":ResNet,
+
         # "dataset": "cifar10",
         # "dataset": "cifar10-1",
-        "dataset": "cifar10-2",
+        # "dataset": "cifar10-2",
         # "dataset": "coco",
         # "dataset": "nuswide_21",
-        # "dataset": "imagenet",
+        "dataset": "imagenet",
         "epoch": 200,
-        "test_map": 15,
+        "test_map": 3,
         "GPU": True,
         # "GPU":False,
         "bit_list": [48],
     }
     config = config_dataset(config)
+    if config["dataset"] == "imagenet":
+        config["alpha"] = 1
+        config["optimizer"]["epoch_lr_decrease"] = 80
     return config
 
 

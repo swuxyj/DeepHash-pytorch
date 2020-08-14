@@ -21,11 +21,16 @@ pyhon DSDH.py
 There are three different configurations for cifar10  
 - config["dataset"]="cifar10" will use 1000 images (100 images per class) as the query set, 5000 images( 500 images per class) as training set , the remaining 54,000 images are used as database.
 - config["dataset"]="cifar10-1" will use 1000 images (100 images per class) as the query set, the remaining 59,000 images are used as database, 5000 images( 500 images per class) are randomly sampled from the database as training set.  
-- config["dataset"]="cifar10-2" will use 10000 images (1000 images per class) as the query set, 50000 images( 5000 images per class) as training set , the remaining 54,000 images are used as database and training set.
+- config["dataset"]="cifar10-2" will use 10000 images (1000 images per class) as the query set, 50000 images( 5000 images per class) as training set and database.
+
 
 You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch)  
-    
-and download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)
+,where is the data split is copy from.
+
+download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)     
+Use data/nus-wide/code.py to randomly select 100 images per class as the query set (2,100 images in total). The remaining images are
+used as the database set, from which we randomly sample 500 images per class as the training set (10, 500 images
+in total).
   
 NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.  
 
@@ -103,7 +108,7 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
         <td >DPSH</td><td >cifar10</td> <td >0.775</td> <td >0.757</td>
     </tr>
     <tr>
-        <td ></td><td >nus_wide_21</td> <td >0.839</td> <td >0.851(0.812*)</td>
+        <td ></td><td >nus_wide_21</td> <td >0.844</td> <td >0.851(0.812*)</td>
     </tr>
     <tr>
         <td ></td><td >imagenet</td> <td >0.502</td> <td >-</td>
@@ -148,10 +153,10 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
         <td ></td><td >mirflickr</td> <td >0.775</td> <td >-</td>
     </tr>
     <tr>
-        <td >DSDH</td><td >cifar10-1</td> <td >0.755</td> <td >0.820</td>
+        <td >DSDH</td><td >cifar10-1</td> <td >0.790</td> <td >0.820</td>
     </tr>
     <tr>
-        <td ></td><td >nus_wide_21</td> <td >0.819</td> <td >0.829</td>
+        <td ></td><td >nus_wide_21</td> <td >0.833</td> <td >0.829</td>
     </tr>
     <tr>
         <td ></td><td >imagenet</td> <td >0.300</td> <td >-</td>
@@ -181,7 +186,7 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
         <td >DFH</td><td >cifar10-1</td> <td >0.785</td> <td >0.844</td>
     </tr>
     <tr>
-        <td ></td><td >nus_wide_21</td> <td >0.834</td> <td >0.842</td>
+        <td ></td><td >nus_wide_21</td> <td >0.837</td> <td >0.842</td>
     </tr>
     <tr>
         <td ></td><td >ms coco</td> <td >0.717</td> <td >-</td>
@@ -193,7 +198,7 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
         <td ></td><td >mirflickr</td> <td >0.766</td> <td >-</td>
     </tr>
     <tr>
-        <td >GreedyHash</td><td >cifar10-1</td> <td >0.796</td> <td >0.822</td>
+        <td >GreedyHash</td><td >cifar10-1</td> <td >0.817</td> <td >0.822</td>
     </tr>
     <tr>
         <td ></td><td >cifar10-2</td> <td >0.932</td> <td >0.944</td>

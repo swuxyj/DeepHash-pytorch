@@ -1,5 +1,7 @@
 # After download  NUS-WIDE.tar.gz(https://github.com/TreezzZ/DSDH_PyTorch)
 # you can use code.py to  to generate database.txt 、 train.txt and test.txt of nuswide_21
+
+import numpy as np
 database_img = []
 with open("database_img.txt") as f:
     for line in f.readlines():
@@ -57,6 +59,7 @@ for index in perm_index:
 
     if add_position == "train":
         train_data.append(line)
+        database_data.append(line)
     elif add_position == "test":
         test_data.append(line)
     else:
