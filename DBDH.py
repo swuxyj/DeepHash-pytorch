@@ -11,17 +11,20 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-# DTSH(ACCV2016)
-# paper [Deep Supervised Hashing with Triplet Labels](https://arxiv.org/abs/1612.03900)
-# code [DTSH](https://github.com/Minione/DTSH)
-
+# DBDH(Neurocomputing2020)
+# paper [Deep balanced discrete hashing for image retrieval](https://www.sciencedirect.com/science/article/abs/pii/S0925231220306032)
+# [DBDH] epoch:150, bit:48, dataset:cifar10-1, MAP:0.792, Best MAP: 0.793
+# [DBDH] epoch:80, bit:48, dataset:nuswide_21, MAP:0.833, Best MAP: 0.834
 def get_config():
     config = {
-        "alpha": 5,
-        "lambda": 1,
-        # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}, "lr_type": "step"},
-        "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}, "lr_type": "step"},
-        "info": "[DTSH]",
+        "alpha": 0.1,
+        # "p": 1,
+        "p": 2,
+        # "optimizer": {"type": optim.SGD, "epoch_lr_decrease": 50,
+        #               "optim_params": {"lr": 0.1, "weight_decay": 5e-4, "momentum": 0.9}},
+        "optimizer": {"type": optim.RMSprop, "epoch_lr_decrease": 50,
+                      "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
+        "info": "[DBDH]",
         "resize_size": 256,
         "crop_size": 224,
         "batch_size": 128,
@@ -38,45 +41,44 @@ def get_config():
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",
         "epoch": 150,
-        "test_map": 15,
-        "save_path": "save/DTSH",
+        "test_map": 5,
+        "save_path": "save/DBDH",
         "GPU": True,
         # "GPU":False,
-        "bit_list": [48, 32, 24, 12],
+        "bit_list": [48],
     }
     config = config_dataset(config)
     return config
 
 
-class DTSHLoss(torch.nn.Module):
+class DPSHLoss(torch.nn.Module):
     def __init__(self, config, bit):
-        super(DTSHLoss, self).__init__()
+        super(DPSHLoss, self).__init__()
+        self.U = torch.zeros(config["num_train"], bit).float()
+        self.Y = torch.zeros(config["num_train"], config["n_class"]).float()
+
+        if config["GPU"]:
+            self.U = self.U.cuda()
+            self.Y = self.Y.cuda()
 
     def forward(self, u, y, ind, config):
+        u = u.clamp(min=-1, max=1)
+        self.U[ind, :] = u.data
+        self.Y[ind, :] = y.float()
 
-        inner_product = u @ u.t()
-        s = y @ y.t() > 0
-        count = 0
+        s = (y @ self.Y.t() > 0).float()
+        inner_product = u @ self.U.t() * 0.5
 
-        loss1 = 0
-        for row in range(s.shape[0]):
-            # if has positive pairs and negative pairs
-            if s[row].sum() != 0 and (~s[row]).sum() != 0:
-                count += 1
-                theta_positive = inner_product[row][s[row] == 1]
-                theta_negative = inner_product[row][s[row] == 0]
-                triple = (theta_positive.unsqueeze(1) - theta_negative.unsqueeze(0) - config["alpha"]).clamp(min=-100,
-                                                                                                             max=50)
-                loss1 += -(triple - torch.log(1 + torch.exp(triple))).mean()
+        likelihood_loss = (1 + (-(inner_product.abs())).exp()).log() + inner_product.clamp(min=0) - s * inner_product
 
-        if count != 0:
-            loss1 = loss1 / count
+        likelihood_loss = likelihood_loss.mean()
+
+        if config["p"] == 1:
+            quantization_loss = config["alpha"] * u.mean(dim=1).abs().mean()
         else:
-            loss1 = 0
+            quantization_loss = config["alpha"] * u.mean(dim=1).pow(2).mean()
 
-        loss2 = config["lambda"] * (u - u.sign()).pow(2).mean()
-
-        return loss1 + loss2
+        return likelihood_loss + quantization_loss
 
 
 def train_val(config, bit):
@@ -88,11 +90,15 @@ def train_val(config, bit):
 
     optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
 
-    criterion = DTSHLoss(config, bit)
+    criterion = DPSHLoss(config, bit)
 
     Best_mAP = 0
 
     for epoch in range(config["epoch"]):
+
+        lr = config["optimizer"]["optim_params"]["lr"] * (0.1 ** (epoch // config["optimizer"]["epoch_lr_decrease"]))
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
 
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
 

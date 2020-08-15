@@ -14,7 +14,8 @@ pyhon HashNet.py
 pyhon DHN.py  
 pyhon DFH.py  
 pyhon DTSH.py   
-pyhon DSDH.py  
+pyhon DSDH.py
+pyhon GreedyHash.py    
 ```
  
 # Dataset
@@ -81,6 +82,9 @@ code [ISDH-Tensorflow](https://github.com/pectinid16/ISDH-Tensorflow)
 IDHN(TMM2019)  
 paper [Improved Deep Hashing with Soft Pairwise Similarity for Multi-label Image Retrieval](https://arxiv.org/abs/1803.02987)  
 code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
+
+DBDH(Neurocomputing2020)  
+paper [Deep balanced discrete hashing for image retrieval](https://www.sciencedirect.com/science/article/abs/pii/S0925231220306032)
 
 # Mean Average Precision,48 bits[AlexNet].
 
