@@ -25,13 +25,13 @@ There are three different configurations for cifar10
 - config["dataset"]="cifar10-2" will use 10000 images (1000 images per class) as the query set, 50000 images( 5000 images per class) as training set and database.
 
 
-You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch)  
-,where is the data split is copy from.
 
-download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)     
+You can download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)     
 Use data/nus-wide/code.py to randomly select 100 images per class as the query set (2,100 images in total). The remaining images are
 used as the database set, from which we randomly sample 500 images per class as the training set (10, 500 images
 in total).
+
+You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch) ,where is the data split is copy from.
   
 NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.  
 

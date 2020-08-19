@@ -7,7 +7,7 @@ import torch.optim as optim
 import time
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
@@ -21,13 +21,13 @@ def get_config():
         "optimizer": {"type": optim.SGD, "epoch_lr_decrease": 30,
                       "optim_params": {"lr": 0.001, "weight_decay": 5e-4, "momentum": 0.9}},
 
-        # "optimizer": {"type": optim.RMSprop, "epoch_lr_decrease": 35,
-        #               "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
+        # "optimizer": {"type": optim.RMSprop, "epoch_lr_decrease": 30,
+        #               "optim_params": {"lr": 5e-5, "weight_decay": 5e-4}},
 
         "info": "[改一下公式，改成和论文一致]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 128,
+        "batch_size": 64,
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
