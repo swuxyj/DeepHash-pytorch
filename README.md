@@ -47,10 +47,6 @@ DSH(CVPR2016)
 paper [Deep Supervised Hashing for Fast Image Retrieval](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Liu_Deep_Supervised_Hashing_CVPR_2016_paper.pdf)  
 code [DSH-pytorch](https://github.com/weixu000/DSH-pytorch)
 
-HashNet(ICCV2017)  
-paper [HashNet: Deep Learning to Hash by Continuation](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf)  
-code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)
-
 DPSH(IJCAI2016)  
 paper [Feature Learning based Deep Supervised Hashing with Pairwise Labels](https://cs.nju.edu.cn/lwj/paper/IJCAI16_DPSH.pdf)   
 code [DPSH-pytorch](https://github.com/jiangqy/DPSH-pytorch)
@@ -59,21 +55,26 @@ DHN(AAAI2016)
 paper [Deep Hashing Network for Efficient Similarity Retrieval](http://ise.thss.tsinghua.edu.cn/~mlong/doc/deep-hashing-network-aaai16.pdf)  
 code [DeepHash-tensorflow](https://github.com/thulab/DeepHash)
 
-DFH(BMVC2019)  
-paper [Push for Quantization: Deep Fisher Hashing](https://arxiv.org/abs/1909.00206)  
-code [Push-for-Quantization-Deep-Fisher-Hashing](https://github.com/liyunqianggyn/Push-for-Quantization-Deep-Fisher-Hashing)
-
 DTSH(ACCV2016)  
 paper [Deep Supervised Hashing with Triplet Labels](https://arxiv.org/abs/1612.03900)  
 code [DTSH](https://github.com/Minione/DTSH)  
+
+HashNet(ICCV2017)  
+paper [HashNet: Deep Learning to Hash by Continuation](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf)  
+code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)
+
+GreedyHash(NIPS2018)  
+paper [Greedy Hash: Towards Fast Optimization for Accurate Hash Coding in CNN](https://papers.nips.cc/paper/7360-greedy-hash-towards-fast-optimization-for-accurate-hash-coding-in-cnn.pdf)  
+code [GreedyHash](https://github.com/ssppp/GreedyHash) 
 
 DSDH(NIPS2017)  
 paper [Deep Supervised Discrete Hashing](https://papers.nips.cc/paper/6842-deep-supervised-discrete-hashing.pdf)  
 code [DSDH_PyTorch](https://github.com/TreezzZ/DSDH_PyTorch)
 
-GreedyHash(NIPS2018)  
-paper [Greedy Hash: Towards Fast Optimization for Accurate Hash Coding in CNN](https://papers.nips.cc/paper/7360-greedy-hash-towards-fast-optimization-for-accurate-hash-coding-in-cnn.pdf)  
-code [GreedyHash](https://github.com/ssppp/GreedyHash) 
+DFH(BMVC2019)  
+paper [Push for Quantization: Deep Fisher Hashing](https://arxiv.org/abs/1909.00206)  
+code [Push-for-Quantization-Deep-Fisher-Hashing](https://github.com/liyunqianggyn/Push-for-Quantization-Deep-Fisher-Hashing)
+
 
 ISDH(arxiv2018)  
 paper [Instance Similarity Deep Hashing for Multi-Label Image Retrieval](https://arxiv.org/abs/1803.02987v1)  
@@ -85,6 +86,16 @@ code [IDHN-Tensorflow](https://github.com/pectinid16/IDHN)
 
 DBDH(Neurocomputing2020)  
 paper [Deep balanced discrete hashing for image retrieval](https://www.sciencedirect.com/science/article/abs/pii/S0925231220306032)
+
+ADSH(AAAI2018)  
+paper [Asymmetric Deep Supervised Hashing](https://cs.nju.edu.cn/lwj/paper/AAAI18_ADSH.pdf)  
+code1 [ADSH matlab + pytorch](https://github.com/jiangqy/ADSH-AAAI2018)  
+code2 [ADSH_pytorch](https://github.com/TreezzZ/ADSH_PyTorch)
+
+DAGH(ICCV2019)  
+paper [Deep Supervised Hashing with Anchor Graph](https://openaccess.thecvf.com/content_ICCV_2019/papers/Chen_Deep_Supervised_Hashing_With_Anchor_Graph_ICCV_2019_paper.pdf)  
+code [DAGH-Matlab](http://www.scholat.com/personalPaperList.html?Entry=laizhihui&selectType=allPaper)
+
 
 # Mean Average Precision,48 bits[AlexNet].
 
@@ -187,7 +198,7 @@ paper [Deep balanced discrete hashing for image retrieval](https://www.sciencedi
         <td ></td><td >mirflickr</td> <td >0.753</td> <td >-</td>
     </tr>
     <tr>
-        <td >DFH</td><td >cifar10-1</td> <td >0.785</td> <td >0.844</td>
+        <td >DFH</td><td >cifar10-1</td> <td >0.801</td> <td >0.844</td>
     </tr>
     <tr>
         <td ></td><td >nus_wide_21</td> <td >0.837</td> <td >0.842</td>

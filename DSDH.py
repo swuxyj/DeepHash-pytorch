@@ -7,7 +7,6 @@ import torch.optim as optim
 import time
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
@@ -43,8 +42,8 @@ def get_config():
         "epoch": 150,
         "test_map": 5,
         # "save_path": "save/DSDH",
-        "GPU": True,
-        # "GPU":False,
+        # "device":torch.device("cpu"),
+        "device": torch.device("cuda:1"),
         "bit_list": [48],
     }
     config = config_dataset(config)
@@ -54,25 +53,19 @@ def get_config():
 class DSDHLoss(torch.nn.Module):
     def __init__(self, config, bit):
         super(DSDHLoss, self).__init__()
-        self.U = torch.zeros(bit, config["num_train"]).float()
-        self.B = torch.zeros(bit, config["num_train"]).float()
-        self.Y = torch.zeros(config["n_class"], config["num_train"]).float()
-
-        if config["GPU"]:
-            self.U = self.U.cuda()
-            self.B = self.B.cuda()
-            self.Y = self.Y.cuda()
+        self.U = torch.zeros(bit, config["num_train"]).float().to(config["device"])
+        self.B = torch.zeros(bit, config["num_train"]).float().to(config["device"])
+        self.Y = torch.zeros(config["n_class"], config["num_train"]).float().to(config["device"])
 
     def forward(self, u, y, ind, config):
 
         self.U[:, ind] = u.t().data
         self.Y[:, ind] = y.t()
 
-        self.updateBandW()
+        self.updateBandW(config["device"])
 
         inner_product = u @ self.U * 0.5
         s = (y @ self.Y > 0).float()
-
 
         likelihood_loss = (1 + (-inner_product.abs()).exp()).log() + inner_product.clamp(min=0) - s * inner_product
 
@@ -87,14 +80,12 @@ class DSDHLoss(torch.nn.Module):
         loss = likelihood_loss + config["mu"] * cl_loss + config["nu"] * reg_loss
         return loss
 
-    def updateBandW(self):
+    def updateBandW(self, device):
         B = self.B
         for dit in range(config["dcc_iter"]):
             # W-step
-            if config["GPU"]:
-                W = torch.inverse(B @ B.t() + config["nu"] / config["mu"] * torch.eye(bit).cuda()) @ B @ self.Y.t()
-            else:
-                W = torch.inverse(B @ B.t() + config["nu"] / config["mu"] * torch.eye(bit)) @ B @ self.Y.t()
+            W = torch.inverse(B @ B.t() + config["nu"] / config["mu"] * torch.eye(bit).to(device)) @ B @ self.Y.t()
+
             for i in range(B.shape[0]):
                 P = W @ self.Y + config["eta"] / config["mu"] * self.U
                 p = P[i, :]
@@ -108,11 +99,10 @@ class DSDHLoss(torch.nn.Module):
 
 
 def train_val(config, bit):
+    device = config["device"]
     train_loader, test_loader, dataset_loader, num_train, num_test = get_data(config)
     config["num_train"] = num_train
-    net = config["net"](bit)
-    if config["GPU"]:
-        net = net.cuda()
+    net = config["net"](bit).to(device)
 
     optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
 
@@ -131,8 +121,8 @@ def train_val(config, bit):
 
         train_loss = 0
         for image, label, ind in train_loader:
-            if config["GPU"]:
-                image, label = image.cuda(), label.cuda()
+            image = image.to(device)
+            label = label.to(device)
 
             optimizer.zero_grad()
             u = net(image)
@@ -149,10 +139,10 @@ def train_val(config, bit):
 
         if (epoch + 1) % config["test_map"] == 0:
             # print("calculating test binary code......")
-            tst_binary, tst_label = compute_result(test_loader, net, usegpu=config["GPU"])
+            tst_binary, tst_label = compute_result(test_loader, net, device=device)
 
             # print("calculating dataset binary code.......")\
-            trn_binary, trn_label = compute_result(dataset_loader, net, usegpu=config["GPU"])
+            trn_binary, trn_label = compute_result(dataset_loader, net, device=device)
 
             # print("calculating map.......")
             mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),

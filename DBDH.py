@@ -7,7 +7,6 @@ import torch.optim as optim
 import time
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
@@ -43,8 +42,8 @@ def get_config():
         "epoch": 150,
         "test_map": 5,
         "save_path": "save/DBDH",
-        "GPU": True,
-        # "GPU":False,
+        # "device":torch.device("cpu"),
+        "device": torch.device("cuda:1"),
         "bit_list": [48],
     }
     config = config_dataset(config)
@@ -54,12 +53,8 @@ def get_config():
 class DPSHLoss(torch.nn.Module):
     def __init__(self, config, bit):
         super(DPSHLoss, self).__init__()
-        self.U = torch.zeros(config["num_train"], bit).float()
-        self.Y = torch.zeros(config["num_train"], config["n_class"]).float()
-
-        if config["GPU"]:
-            self.U = self.U.cuda()
-            self.Y = self.Y.cuda()
+        self.U = torch.zeros(config["num_train"], bit).float().to(config["device"])
+        self.Y = torch.zeros(config["num_train"], config["n_class"]).float().to(config["device"])
 
     def forward(self, u, y, ind, config):
         u = u.clamp(min=-1, max=1)
@@ -82,11 +77,10 @@ class DPSHLoss(torch.nn.Module):
 
 
 def train_val(config, bit):
+    device = config["device"]
     train_loader, test_loader, dataset_loader, num_train, num_test = get_data(config)
     config["num_train"] = num_train
-    net = config["net"](bit)
-    if config["GPU"]:
-        net = net.cuda()
+    net = config["net"](bit).to(device)
 
     optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
 
@@ -109,8 +103,8 @@ def train_val(config, bit):
 
         train_loss = 0
         for image, label, ind in train_loader:
-            if config["GPU"]:
-                image, label = image.cuda(), label.cuda()
+            image = image.to(device)
+            label = label.to(device)
 
             optimizer.zero_grad()
             u = net(image)
@@ -127,10 +121,10 @@ def train_val(config, bit):
 
         if (epoch + 1) % config["test_map"] == 0:
             # print("calculating test binary code......")
-            tst_binary, tst_label = compute_result(test_loader, net, usegpu=config["GPU"])
+            tst_binary, tst_label = compute_result(test_loader, net, device=device)
 
             # print("calculating dataset binary code.......")\
-            trn_binary, trn_label = compute_result(dataset_loader, net, usegpu=config["GPU"])
+            trn_binary, trn_label = compute_result(dataset_loader, net, device=device)
 
             # print("calculating map.......")
             mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),

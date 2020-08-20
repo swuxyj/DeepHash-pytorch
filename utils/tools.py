@@ -195,16 +195,13 @@ def get_data(config):
         dsets["test"])
 
 
-def compute_result(dataloader, net, usegpu=False):
+def compute_result(dataloader, net, device):
     bs, clses = [], []
     net.eval()
     for img, cls, _ in tqdm(dataloader):
         clses.append(cls)
-        if usegpu:
-            bs.append((net(img.cuda())).data.cpu())
-        else:
-            bs.append((net(img)).data.cpu())
-    return torch.sign(torch.cat(bs)), torch.cat(clses)
+        bs.append((net(img.to(device))).data.cpu())
+    return torch.cat(bs).sign(), torch.cat(clses)
 
 
 def CalcHammingDist(B1, B2):
