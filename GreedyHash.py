@@ -23,7 +23,7 @@ def get_config():
         # "optimizer": {"type": optim.RMSprop, "epoch_lr_decrease": 30,
         #               "optim_params": {"lr": 5e-5, "weight_decay": 5e-4}},
 
-        "info": "[改一下公式，改成和论文一致]",
+        "info": "[GreedyHash]",
         "resize_size": 256,
         "crop_size": 224,
         "batch_size": 64,
@@ -82,7 +82,7 @@ class GreedyHashLoss(torch.nn.Module):
 
 def train_val(config, bit):
     device = config["device"]
-    train_loader, test_loader, dataset_loader, num_train, num_test = get_data(config)
+    train_loader, test_loader, dataset_loader, num_train, num_test, num_dataset = get_data(config)
     config["num_train"] = num_train
     net = config["net"](bit).to(device)
 

@@ -111,7 +111,7 @@ class DFHLoss(torch.nn.Module):
 
 def train_val(config, bit):
     device = config["device"]
-    train_loader, test_loader, dataset_loader, num_train, num_test = get_data(config)
+    train_loader, test_loader, dataset_loader, num_train, num_test, num_dataset = get_data(config)
     config["num_train"] = num_train
     net = config["net"](bit).to(device)
 

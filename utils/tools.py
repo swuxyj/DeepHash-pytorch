@@ -163,15 +163,16 @@ def cifar_dataset(config):
 
     test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                               batch_size=batch_size,
-                                              shuffle=True,
+                                              shuffle=False,
                                               num_workers=4)
 
     database_loader = torch.utils.data.DataLoader(dataset=database_dataset,
                                                   batch_size=batch_size,
-                                                  shuffle=True,
+                                                  shuffle=False,
                                                   num_workers=4)
 
-    return train_loader, test_loader, database_loader, train_index.shape[0], test_index.shape[0]
+    return train_loader, test_loader, database_loader, \
+           train_index.shape[0], test_index.shape[0], database_index.shape[0]
 
 
 def get_data(config):
@@ -191,8 +192,8 @@ def get_data(config):
                                                       batch_size=data_config[data_set]["batch_size"],
                                                       shuffle=True, num_workers=4)
 
-    return dset_loaders["train_set"], dset_loaders["test"], dset_loaders["database"], len(dsets["train_set"]), len(
-        dsets["test"])
+    return dset_loaders["train_set"], dset_loaders["test"], dset_loaders["database"], \
+           len(dsets["train_set"]), len(dsets["test"]), len(dsets["database"])
 
 
 def compute_result(dataloader, net, device):

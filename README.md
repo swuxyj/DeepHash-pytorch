@@ -227,6 +227,12 @@ code [DAGH-Matlab](http://www.scholat.com/personalPaperList.html?Entry=laizhihui
     <tr>
         <td ></td><td >nuswide_21</td> <td >0.793</td> <td >-</td>
     </tr>
+    <tr>
+        <td >ADSH</td><td >cifar10-1</td> <td >0.907</td> <td >0.9390</td>
+    </tr>
+    <tr>
+        <td ></td><td >nuswide_21</td> <td >-</td> <td >0.9055</td>
+    </tr>
 </table>
 Due to time constraints, I can't test many hyper-parameters  
 
