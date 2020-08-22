@@ -12,7 +12,6 @@ import numpy as np
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-# to do
 # ADSH(AAAI2018)
 # paper [Asymmetric Deep Supervised Hashing](https://cs.nju.edu.cn/lwj/paper/AAAI18_ADSH.pdf)
 # code1 [ADSH matlab + pytorch](https://github.com/jiangqy/ADSH-AAAI2018)
@@ -25,16 +24,16 @@ def get_config():
         "max_iter": 150,
         "epoch": 3,
         "test_map": 10,
-        "optimizer": {"type": optim.SGD, "optim_params": {"lr": 0.001, "weight_decay": 5e-4}},
+        # "optimizer": {"type": optim.SGD, "optim_params": {"lr": 0.001, "weight_decay": 5e-4}},
         # "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
-        # "optimizer": {"type": optim.Adam, "optim_params": {"lr": 1e-4, "weight_decay": 1e-5}},
+        "optimizer": {"type": optim.Adam, "optim_params": {"lr": 1e-4, "weight_decay": 1e-5}},
         "info": "[ADSH]",
         "resize_size": 256,
         "crop_size": 224,
         "batch_size": 64,
         "net": AlexNet,
-        # "dataset": "cifar10-1",
-        "dataset": "nuswide_21",
+        "dataset": "cifar10-1",
+        # "dataset": "nuswide_21",
         "save_path": "save/ADSH",
         # "device":torch.device("cpu"),
         "device": torch.device("cuda:1"),
@@ -44,6 +43,7 @@ def get_config():
     #     config["gamma"] = 0
     config = config_dataset(config)
     return config
+
 
 def calc_sim(database_label, train_label):
     S = (database_label @ train_label.t() > 0).float()
@@ -73,8 +73,8 @@ def train_val(config, bit):
     for iter in range(config["max_iter"]):
 
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
-        print("%s[%2d/%2d][%s] bit:%d, dataset:%s, training...." % (
-            config["info"], iter + 1, config["max_iter"], current_time, bit, config["dataset"]), end="")
+        print("%s[%2d/%2d][%s] bit:%d, dataset:%s, lr:%6f, training...." % (
+            config["info"], iter + 1, config["max_iter"], current_time, bit, config["dataset"], lr), end="")
 
         net.train()
 
@@ -98,7 +98,7 @@ def train_val(config, bit):
                 net.zero_grad()
                 S = calc_sim(label, database_labels)
                 u = net(image)
-                u = torch.tanh(u)
+                u = u.tanh()
                 U[ind, :] = u.data
 
                 square_loss = (u @ V.t() - bit * S).pow(2)
@@ -125,7 +125,7 @@ def train_val(config, bit):
             Uk = U[:, k]
             Qk = Q[:, k]
             # formula 10
-            V[:, k] = -(2 * V_ @ U_.t() @ Uk + Qk).sign()
+            V[:, k] = -(2 * V_ @ (U_.t() @ Uk) + Qk).sign()
 
         if (iter + 1) % config["test_map"] == 0:
             # print("calculating test binary code......")

@@ -100,7 +100,7 @@ def train_val(config, bit):
 
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
 
-        print("%s[%2d/%2d][%s] bit:%d, lr:%.6f, dataset:%s, training...." % (
+        print("%s[%2d/%2d][%s] bit:%d, lr:%.9f, dataset:%s, training...." % (
             config["info"], epoch + 1, config["epoch"], current_time, bit, lr, config["dataset"]), end="")
 
         net.train()

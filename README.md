@@ -1,8 +1,5 @@
 # DeepHash-pytorch
-Implementation of Some Deep Hash Algorithms.
-#### Any Pull Request is highly welcomed
-
-#### Any Issues is highly welcomed
+Implementation of Some Deep Hash Algorithms Baseline.
 
 # How to run
 My environment is python==3.7.0  torchvision==0.5.0  pytorch==1.4.0  
@@ -92,7 +89,7 @@ paper [Asymmetric Deep Supervised Hashing](https://cs.nju.edu.cn/lwj/paper/AAAI1
 code1 [ADSH matlab + pytorch](https://github.com/jiangqy/ADSH-AAAI2018)  
 code2 [ADSH_pytorch](https://github.com/TreezzZ/ADSH_PyTorch)
 
-DAGH(ICCV2019)  
+DAGH(ICCV2019, not implement here)  
 paper [Deep Supervised Hashing with Anchor Graph](https://openaccess.thecvf.com/content_ICCV_2019/papers/Chen_Deep_Supervised_Hashing_With_Anchor_Graph_ICCV_2019_paper.pdf)  
 code [DAGH-Matlab](http://www.scholat.com/personalPaperList.html?Entry=laizhihui&selectType=allPaper)
 
@@ -228,10 +225,10 @@ code [DAGH-Matlab](http://www.scholat.com/personalPaperList.html?Entry=laizhihui
         <td ></td><td >nuswide_21</td> <td >0.793</td> <td >-</td>
     </tr>
     <tr>
-        <td >ADSH</td><td >cifar10-1</td> <td >0.907</td> <td >0.9390</td>
+        <td >ADSH</td><td >cifar10-1</td> <td >0.921</td> <td >0.9390</td>
     </tr>
     <tr>
-        <td ></td><td >nuswide_21</td> <td >-</td> <td >0.9055</td>
+        <td ></td><td >nuswide_21</td> <td >0.622</td> <td >0.9055</td>
     </tr>
 </table>
 Due to time constraints, I can't test many hyper-parameters  
