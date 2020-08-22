@@ -73,8 +73,8 @@ def train_val(config, bit):
     for iter in range(config["max_iter"]):
 
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
-        print("%s[%2d/%2d][%s] bit:%d, dataset:%s, lr:%6f, training...." % (
-            config["info"], iter + 1, config["max_iter"], current_time, bit, config["dataset"], lr), end="")
+        print("%s[%2d/%2d][%s] bit:%d, dataset:%s,  training...." % (
+            config["info"], iter + 1, config["max_iter"], current_time, bit, config["dataset"]), end="")
 
         net.train()
 
