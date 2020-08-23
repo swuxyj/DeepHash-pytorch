@@ -93,6 +93,8 @@ DAGH(ICCV2019, not implement here)
 paper [Deep Supervised Hashing with Anchor Graph](https://openaccess.thecvf.com/content_ICCV_2019/papers/Chen_Deep_Supervised_Hashing_With_Anchor_Graph_ICCV_2019_paper.pdf)  
 code [DAGH-Matlab](http://www.scholat.com/personalPaperList.html?Entry=laizhihui&selectType=allPaper)
 
+DAPH(ACMMM2017, not completely implement here)  
+paper [Deep Asymmetric Pairwise Hashing](http://cfm.uestc.edu.cn/~fshen/DAPH.pdf)
 
 # Mean Average Precision,48 bits[AlexNet].
 
@@ -102,10 +104,10 @@ code [DAGH-Matlab](http://www.scholat.com/personalPaperList.html?Entry=laizhihui
         <td>Algorithms</td><td>dataset</td><td>this impl.</td><td>paper</td>
     </tr>
     <tr>
-        <td >DSH</td><td >cifar10</td> <td >0.774</td> <td >0.6755</td>
+        <td >DSH</td><td >cifar10</td> <td >0.800</td> <td >0.6755</td>
     </tr>
     <tr>
-        <td ></td><td >nus_wide_21</td> <td >0.766</td> <td >0.5621</td>
+        <td ></td><td >nus_wide_21</td> <td >0.798</td> <td >0.5621</td>
     </tr>
     <tr>
         <td ></td><td >ms coco</td> <td >0.655</td> <td >-</td>

@@ -3,10 +3,10 @@ from torchvision import models
 
 
 class AlexNet(nn.Module):
-    def __init__(self, hash_bit):
+    def __init__(self, hash_bit, pretrained=True):
         super(AlexNet, self).__init__()
 
-        model_alexnet = models.alexnet(pretrained=True)
+        model_alexnet = models.alexnet(pretrained=pretrained)
         self.features = model_alexnet.features
         cl1 = nn.Linear(256 * 6 * 6, 4096)
         cl1.weight = model_alexnet.classifier[1].weight
@@ -35,6 +35,7 @@ class AlexNet(nn.Module):
 
 resnet_dict = {"ResNet18": models.resnet18, "ResNet34": models.resnet34, "ResNet50": models.resnet50,
                "ResNet101": models.resnet101, "ResNet152": models.resnet152}
+
 
 class ResNet(nn.Module):
     def __init__(self, hash_bit, res_model="ResNet50"):
