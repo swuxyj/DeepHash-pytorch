@@ -104,7 +104,7 @@ paper [Deep Asymmetric Pairwise Hashing](http://cfm.uestc.edu.cn/~fshen/DAPH.pdf
         <td>Algorithms</td><td>dataset</td><td>this impl.</td><td>paper</td>
     </tr>
     <tr>
-        <td >DSH</td><td >cifar10</td> <td >0.800</td> <td >0.6755</td>
+        <td >DSH</td><td >cifar10-1</td> <td >0.800</td> <td >0.6755</td>
     </tr>
     <tr>
         <td ></td><td >nus_wide_21</td> <td >0.798</td> <td >0.5621</td>

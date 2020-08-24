@@ -10,74 +10,57 @@ import numpy as np
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-# GreedyHash(NIPS2018)
-# paper [Greedy Hash: Towards Fast Optimization for Accurate Hash Coding in CNN](https://papers.nips.cc/paper/7360-greedy-hash-towards-fast-optimization-for-accurate-hash-coding-in-cnn.pdf)
-# code [GreedyHash](https://github.com/ssppp/GreedyHash)
-
+# DSHSD(IEEE ACCESS 2019)
+# paper [Deep Supervised Hashing Based on Stable Distribution](https://ieeexplore.ieee.org/document/8648432/)
+# [DSHSD] epoch:70, bit:48, dataset:cifar10-1, MAP:0.809, Best MAP: 0.809
+# [DSHSD] epoch:250, bit:48, dataset:nuswide_21, MAP:0.809, Best MAP: 0.815
+# [DSHSD] epoch:135, bit:48, dataset:imagenet, MAP:0.647, Best MAP: 0.647
 def get_config():
     config = {
-        "alpha": 0.1,
-        "optimizer": {"type": optim.SGD, "epoch_lr_decrease": 30,
-                      "optim_params": {"lr": 0.001, "weight_decay": 5e-4, "momentum": 0.9}},
-
-        # "optimizer": {"type": optim.RMSprop, "epoch_lr_decrease": 30,
-        #               "optim_params": {"lr": 5e-5, "weight_decay": 5e-4}},
-
-        "info": "[GreedyHash]",
+        "alpha": 0.05,
+        "optimizer": {"type": optim.Adam, "optim_params": {"lr": 1e-5, "betas": (0.9, 0.999)}},
+        "info": "[DSHSD]",
         "resize_size": 256,
         "crop_size": 224,
         "batch_size": 64,
         "net": AlexNet,
         # "net":ResNet,
-        # "dataset": "cifar10",
-        "dataset": "cifar10-1",
-        # "dataset": "cifar10-2",
-        # "dataset": "coco",
-        # "dataset": "mirflickr",
-        # "dataset": "voc2012",
-        # "dataset": "imagenet",
+        # "dataset": "cifar10-1",
+        "dataset": "imagenet",
         # "dataset": "nuswide_21",
-        # "dataset": "nuswide_21_m",
-        # "dataset": "nuswide_81_m",
-        "epoch": 200,
-        "test_map": 3,
+        "epoch": 250,
+        "test_map": 5,
         # "device":torch.device("cpu"),
         "device": torch.device("cuda:1"),
         "bit_list": [48],
     }
     config = config_dataset(config)
-    if config["dataset"] == "imagenet":
-        config["alpha"] = 1
-        config["optimizer"]["epoch_lr_decrease"] = 80
     return config
 
 
-class GreedyHashLoss(torch.nn.Module):
+class DSHLoss(torch.nn.Module):
     def __init__(self, config, bit):
-        super(GreedyHashLoss, self).__init__()
+        super(DSHLoss, self).__init__()
+        self.m = 2 * bit
         self.fc = torch.nn.Linear(bit, config["n_class"], bias=False).to(config["device"])
-        self.criterion = torch.nn.CrossEntropyLoss().to(config["device"])
 
-    def forward(self, u, onehot_y, ind, config):
-        b = GreedyHashLoss.Hash.apply(u)
-        # one-hot to label
-        y = onehot_y.argmax(axis=1)
-        
-        loss1 = self.criterion(y_pre, y)
-        loss2 = config["alpha"] * (u.abs() - 1).pow(3).abs().mean()
-        return loss1 + loss2
+    def forward(self, u, y, ind, config):
+        u = torch.tanh(u)
 
-    class Hash(torch.autograd.Function):
-        @staticmethod
-        def forward(ctx, input):
-            # ctx.save_for_backward(input)
-            return input.sign()
+        dist = (u.unsqueeze(1) - u.unsqueeze(0)).pow(2).sum(dim=2)
+        s = (y @ y.t() == 0).float()
 
-        @staticmethod
-        def backward(ctx, grad_output):
-            # input,  = ctx.saved_tensors
-            # grad_output = grad_output.data
-            return grad_output
+        Ld = (1 - s) / 2 * dist + s / 2 * (self.m - dist).clamp(min=0)
+        Ld = config["alpha"] * Ld.mean()
+        o = self.fc(u)
+        if "nuswide" in config["dataset"]:
+            # formula 8, multiple labels classification loss
+            Lc = (o - y * o + ((1 + (-o).exp()).log())).sum(dim=1).mean()
+        else:
+            # formula 7, single labels classification loss
+            Lc = (-o.softmax(dim=1).log() * y).sum(dim=1).mean()
+
+        return Lc + Ld
 
 
 def train_val(config, bit):
@@ -88,20 +71,16 @@ def train_val(config, bit):
 
     optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
 
-    criterion = GreedyHashLoss(config, bit)
+    criterion = DSHLoss(config, bit)
 
     Best_mAP = 0
 
     for epoch in range(config["epoch"]):
 
-        lr = config["optimizer"]["optim_params"]["lr"] * (0.1 ** (epoch // config["optimizer"]["epoch_lr_decrease"]))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
 
-        print("%s[%2d/%2d][%s] bit:%d, lr:%.9f, dataset:%s, training...." % (
-            config["info"], epoch + 1, config["epoch"], current_time, bit, lr, config["dataset"]), end="")
+        print("%s[%2d/%2d][%s] bit:%d, dataset:%s, training...." % (
+            config["info"], epoch + 1, config["epoch"], current_time, bit, config["dataset"]), end="")
 
         net.train()
 
