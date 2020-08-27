@@ -28,7 +28,7 @@ Use data/nus-wide/code.py to randomly select 100 images per class as the query s
 used as the database set, from which we randomly sample 500 images per class as the training set (10, 500 images
 in total).
 
-You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch) ,where is the data split is copy from.
+You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch) ,where is the data split  copy from.
   
 NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.  
 
