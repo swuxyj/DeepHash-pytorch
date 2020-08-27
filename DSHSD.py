@@ -10,16 +10,16 @@ import numpy as np
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-# DSHSD(IEEE ACCESS 2019)
+# DSHSDSD(IEEE ACCESS 2019)
 # paper [Deep Supervised Hashing Based on Stable Distribution](https://ieeexplore.ieee.org/document/8648432/)
-# [DSHSD] epoch:70, bit:48, dataset:cifar10-1, MAP:0.809, Best MAP: 0.809
-# [DSHSD] epoch:250, bit:48, dataset:nuswide_21, MAP:0.809, Best MAP: 0.815
-# [DSHSD] epoch:135, bit:48, dataset:imagenet, MAP:0.647, Best MAP: 0.647
+# [DSHSDSD] epoch:70, bit:48, dataset:cifar10-1, MAP:0.809, Best MAP: 0.809
+# [DSHSDSD] epoch:250, bit:48, dataset:nuswide_21, MAP:0.809, Best MAP: 0.815
+# [DSHSDSD] epoch:135, bit:48, dataset:imagenet, MAP:0.647, Best MAP: 0.647
 def get_config():
     config = {
         "alpha": 0.05,
         "optimizer": {"type": optim.Adam, "optim_params": {"lr": 1e-5, "betas": (0.9, 0.999)}},
-        "info": "[DSHSD]",
+        "info": "[DSHSDSD]",
         "resize_size": 256,
         "crop_size": 224,
         "batch_size": 64,
@@ -38,9 +38,9 @@ def get_config():
     return config
 
 
-class DSHLoss(torch.nn.Module):
+class DSHSDLoss(torch.nn.Module):
     def __init__(self, config, bit):
-        super(DSHLoss, self).__init__()
+        super(DSHSDLoss, self).__init__()
         self.m = 2 * bit
         self.fc = torch.nn.Linear(bit, config["n_class"], bias=False).to(config["device"])
 
@@ -71,7 +71,7 @@ def train_val(config, bit):
 
     optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
 
-    criterion = DSHLoss(config, bit)
+    criterion = DSHSDLoss(config, bit)
 
     Best_mAP = 0
 
