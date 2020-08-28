@@ -10,7 +10,7 @@ import numpy as np
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-# DSHSDSD(IEEE ACCESS 2019)
+# DSHSD(IEEE ACCESS 2019)
 # paper [Deep Supervised Hashing Based on Stable Distribution](https://ieeexplore.ieee.org/document/8648432/)
 # [DSHSDSD] epoch:70, bit:48, dataset:cifar10-1, MAP:0.809, Best MAP: 0.809
 # [DSHSDSD] epoch:250, bit:48, dataset:nuswide_21, MAP:0.809, Best MAP: 0.815
