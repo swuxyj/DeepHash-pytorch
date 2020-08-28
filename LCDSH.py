@@ -12,9 +12,8 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 
 # LCDSH(IJCAI2017)
 # paper [Locality-Constrained Deep Supervised Hashing for Image Retrieval](https://www.ijcai.org/Proceedings/2017/0499.pdf)
-# Due to time constraints, I can't test many hyper-parameters   and may not train enough
 # [LCDSH] epoch:145, bit:48, dataset:cifar10-1, MAP:0.798, Best MAP: 0.798
-# [LCDSH] epoch:15, bit:48, dataset:nuswide_21, MAP:0.815, Best MAP: 0.815
+# [LCDSH] epoch:183, bit:48, dataset:nuswide_21, MAP:0.833, Best MAP: 0.834
 def get_config():
     config = {
         "lambda": 3,
@@ -26,9 +25,9 @@ def get_config():
         "batch_size": 128,
         "net": AlexNet,
         # "net":ResNet,
-        # "dataset": "cifar10-1",
-        "dataset": "nuswide_21",
-        "epoch": 250,
+        "dataset": "cifar10-1",
+        # "dataset": "nuswide_21",
+        "epoch": 350,
         "test_map": 5,
         # "device":torch.device("cpu"),
         "device": torch.device("cuda:1"),

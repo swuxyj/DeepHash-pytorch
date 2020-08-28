@@ -96,6 +96,12 @@ code [DAGH-Matlab](http://www.scholat.com/personalPaperList.html?Entry=laizhihui
 DAPH(ACMMM2017, not completely implement here)  
 paper [Deep Asymmetric Pairwise Hashing](http://cfm.uestc.edu.cn/~fshen/DAPH.pdf)
 
+LCDSH(IJCAI2017)  
+paper [Locality-Constrained Deep Supervised Hashing for Image Retrieval](https://www.ijcai.org/Proceedings/2017/0499.pdf)
+
+DSHSDSD(IEEE ACCESS 2019)  
+paper [Deep Supervised Hashing Based on Stable Distribution](https://ieeexplore.ieee.org/document/8648432/)
+
 # Mean Average Precision,48 bits[AlexNet].
 
 
