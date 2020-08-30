@@ -7,6 +7,7 @@ import torch.optim as optim
 import time
 import numpy as np
 from scipy.linalg import hadamard  # direct import  hadamrd matrix from scipy
+import random
 
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -15,23 +16,35 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # paper [Central Similarity Quantization for Efficient Image and Video Retrieval](https://openaccess.thecvf.com/content_CVPR_2020/papers/Yuan_Central_Similarity_Quantization_for_Efficient_Image_and_Video_Retrieval_CVPR_2020_paper.pdf)
 # code [CSQ-pytorch](https://github.com/yuanli2333/Hadamard-Matrix-for-hashing)
 
-# Due to time constraints, I can't test many hyper-parameters
-# [CSQ] epoch:95, bit:64, dataset:cifar10-1, MAP:0.175, Best MAP: 0.275
-# [CSQ] epoch:5, bit:64, dataset:imagenet, MAP:0.016, Best MAP: 0.016
+# AlexNet
+# [CSQ] epoch:65, bit:64, dataset:cifar10-1, MAP:0.787, Best MAP: 0.790
+# [CSQ] epoch:90, bit:16, dataset:imagenet, MAP:0.593, Best MAP: 0.596, paper:0.601
+# [CSQ] epoch:150, bit:64, dataset:imagenet, MAP:0.698, Best MAP: 0.706, paper:0.695
+# [CSQ] epoch:40, bit:16, dataset:nuswide_21, MAP:0.784, Best MAP: 0.789
+# [CSQ] epoch:40, bit:32, dataset:nuswide_21, MAP:0.821, Best MAP: 0.821
+# [CSQ] epoch:40, bit:64, dataset:nuswide_21, MAP:0.834, Best MAP: 0.834
+
+# ResNet50
+# [CSQ] epoch:20, bit:64, dataset:imagenet, MAP:0.881, Best MAP: 0.881, paper:0.873
+# [CSQ] epoch:10, bit:64, dataset:nuswide_21_m, MAP:0.844, Best MAP: 0.844, paper:0.839
+# [CSQ] epoch:40, bit:64, dataset:coco, MAP:0.870, Best MAP: 0.883, paper:0.861
 def get_config():
     config = {
         "lambda": 0.0001,
-        "optimizer": {"type": optim.Adam, "optim_params": {"lr": 0.001, "betas": (0.9, 0.999)}},
+        "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
         "info": "[CSQ]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 128,
-        "net": AlexNet,
-        # "net":ResNet,
+        "batch_size": 64,
+        # "net": AlexNet,
+        "net": ResNet,
         # "dataset": "cifar10-1",
         "dataset": "imagenet",
+        # "dataset": "coco",
+        # "dataset": "nuswide_21",
+        # "dataset": "nuswide_21_m",
         "epoch": 150,
-        "test_map": 5,
+        "test_map": 10,
         # "device":torch.device("cpu"),
         "device": torch.device("cuda:1"),
         "bit_list": [64],
@@ -43,23 +56,61 @@ def get_config():
 class CSQLoss(torch.nn.Module):
     def __init__(self, config, bit):
         super(CSQLoss, self).__init__()
-        n_class = config["n_class"]
-        ha_d = hadamard(bit)
-        ha_2d = np.concatenate((ha_d, -ha_d), 0)
-        self.hash_targets = torch.from_numpy(ha_2d[:n_class]).float().to(config["device"])
+        self.is_single_label = config["dataset"] not in {"nuswide_21", "nuswide_21_m", "coco"}
+        self.hash_targets = self.get_hash_targets(config["n_class"], bit).to(config["device"])
+        self.multi_label_random_center = torch.randint(2, (bit,)).float().to(config["device"])
         self.criterion = torch.nn.BCELoss().to(config["device"])
 
     def forward(self, u, y, ind, config):
         u = u.tanh()
-        hash_center = self.onehot2center(y)
+        hash_center = self.label2center(y)
         center_loss = self.criterion(0.5 * (u + 1), 0.5 * (hash_center + 1))
 
         Q_loss = (u.abs() - 1).pow(2).mean()
         return center_loss + config["lambda"] * Q_loss
 
-    def onehot2center(self, y):
-        hash_center = self.hash_targets[y.argmax(axis=1)]
+    def label2center(self, y):
+        if self.is_single_label:
+            hash_center = self.hash_targets[y.argmax(axis=1)]
+        else:
+            # to get sign no need to use mean, use sum here
+            center_sum = y @ self.hash_targets
+            random_center = self.multi_label_random_center.repeat(center_sum.shape[0], 1)
+            center_sum[center_sum == 0] = random_center[center_sum == 0]
+            hash_center = 2 * (center_sum > 0).float() - 1
         return hash_center
+
+    # use algorithm 1 to generate hash centers
+    def get_hash_targets(self, n_class, bit):
+        H_K = hadamard(bit)
+        H_2K = np.concatenate((H_K, -H_K), 0)
+        hash_targets = torch.from_numpy(H_2K[:n_class]).float()
+
+        if H_2K.shape[0] < n_class:
+            hash_targets.resize_(n_class, bit)
+            for k in range(20):
+                for index in range(H_2K.shape[0], n_class):
+                    ones = torch.ones(bit)
+                    # Bernouli distribution
+                    sa = random.sample(list(range(bit)), bit // 2)
+                    ones[sa] = -1
+                    hash_targets[index] = ones
+                # to find average/min  pairwise distance
+                c = []
+                for i in range(n_class):
+                    for j in range(n_class):
+                        if i < j:
+                            TF = sum(hash_targets[i] != hash_targets[j])
+                            c.append(TF)
+                c = np.array(c)
+
+                # choose min(c) in the range of K/4 to K/3
+                # see in https://github.com/yuanli2333/Hadamard-Matrix-for-hashing/issues/1
+                # but it is hard when bit is  small
+                if c.min() > bit / 4 and c.mean() >= bit / 2:
+                    print(c.min(), c.mean())
+                    break
+        return hash_targets
 
 
 def train_val(config, bit):

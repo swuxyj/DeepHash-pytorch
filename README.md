@@ -102,6 +102,10 @@ paper [Locality-Constrained Deep Supervised Hashing for Image Retrieval](https:/
 DSHSD(IEEE ACCESS 2019)  
 paper [Deep Supervised Hashing Based on Stable Distribution](https://ieeexplore.ieee.org/document/8648432/)
 
+CSQ(CVPR2020)  
+paper [Central Similarity Quantization for Efficient Image and Video Retrieval](https://openaccess.thecvf.com/content_CVPR_2020/papers/Yuan_Central_Similarity_Quantization_for_Efficient_Image_and_Video_Retrieval_CVPR_2020_paper.pdf)  
+code [CSQ-pytorch](https://github.com/yuanli2333/Hadamard-Matrix-for-hashing)
+
 # Mean Average Precision,48 bits[AlexNet].
 
 
@@ -237,6 +241,15 @@ paper [Deep Supervised Hashing Based on Stable Distribution](https://ieeexplore.
     </tr>
     <tr>
         <td ></td><td >nuswide_21</td> <td >0.622</td> <td >0.9055</td>
+    </tr>
+    <tr>
+        <td >CSQ(ResNet50)</td><td >coco</td> <td >0.883</td> <td >0.861</td>
+    </tr>
+    <tr>
+        <td ></td><td >imagenet</td> <td >0.881</td> <td >0.873</td>
+    </tr>
+    <tr>
+        <td ></td><td >nuswide_21_m</td> <td >0.844</td> <td >0.839</td>
     </tr>
 </table>
 Due to time constraints, I can't test many hyper-parameters  
