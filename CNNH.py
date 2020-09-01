@@ -31,8 +31,8 @@ def get_config():
         "batch_size": 128,
         "net": AlexNet,
         # "net":ResNet,
-        "dataset": "cifar10-1",
-        # "dataset": "nuswide_21",
+        # "dataset": "cifar10-1",
+        "dataset": "nuswide_21",
         "epoch": 150,
         "test_map": 10,
         # "device":torch.device("cpu"),
@@ -47,7 +47,7 @@ class CNNHLoss(torch.nn.Module):
     def __init__(self, config, train_labels, bit):
 
         super(CNNHLoss, self).__init__()
-        S = (train_labels @ train_labels.t() > 0).float()
+        S = (train_labels @ train_labels.t() > 0).float() * 2 - 1
         # load H if exists
         save_full_path = "%sH_T(%d)_bit(%d)_dataset(%s).pt" % (
             config["H_save_path"], config["T"], bit, config["dataset"])
@@ -93,7 +93,7 @@ class CNNHLoss(torch.nn.Module):
         return H.sign()
 
     def forward(self, u, y, ind, config):
-        loss = (u - self.H[ind]).abs().mean()
+        loss = (u - self.H[ind]).pow(2).mean()
         return loss
 
 
