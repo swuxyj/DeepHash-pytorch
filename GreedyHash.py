@@ -62,7 +62,7 @@ class GreedyHashLoss(torch.nn.Module):
         b = GreedyHashLoss.Hash.apply(u)
         # one-hot to label
         y = onehot_y.argmax(axis=1)
-        
+        y_pre = self.fc(b)
         loss1 = self.criterion(y_pre, y)
         loss2 = config["alpha"] * (u.abs() - 1).pow(3).abs().mean()
         return loss1 + loss2

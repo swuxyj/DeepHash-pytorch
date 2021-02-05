@@ -2,7 +2,10 @@
 Implementation of Some Deep Hash Algorithms Baseline.
 
 # How to run
-My environment is python==3.7.0  torchvision==0.5.0  pytorch==1.4.0  
+My environment is
+```
+python==3.7.0  torchvision==0.5.0  pytorch==1.4.0  
+```
 You can easily train and test any algorithm just by
 ```
 pyhon DSH.py  
@@ -253,6 +256,4 @@ code [CSQ-pytorch](https://github.com/yuanli2333/Hadamard-Matrix-for-hashing)
     </tr>
 </table>
 Due to time constraints, I can't test many hyper-parameters  
-
-"DPSH 0.812 *" denotes re-running the code provided by they authors of DPSH (said in [Deep Supervised Discrete Hashing](https://papers.nips.cc/paper/6842-deep-supervised-discrete-hashing.pdf))  
 
