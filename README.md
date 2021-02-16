@@ -107,7 +107,11 @@ paper [Deep Supervised Hashing Based on Stable Distribution](https://ieeexplore.
 
 CSQ(CVPR2020)  
 paper [Central Similarity Quantization for Efficient Image and Video Retrieval](https://openaccess.thecvf.com/content_CVPR_2020/papers/Yuan_Central_Similarity_Quantization_for_Efficient_Image_and_Video_Retrieval_CVPR_2020_paper.pdf)  
-code [CSQ-pytorch](https://github.com/yuanli2333/Hadamard-Matrix-for-hashing)
+code [CSQ-pytorch](https://github.com/yuanli2333/Hadamard-Matrix-for-hashing)  
+
+Deep Unsupervised Image Hashing by Maximizing Bit Entropy(AAAI2021)
+paper [Deep Unsupervised Image Hashing by Maximizing Bit Entropy](https://arxiv.org/pdf/2012.12334.pdf)
+code [Deep-Unsupervised-Image-Hashing](https://github.com/liyunqianggyn/Deep-Unsupervised-Image-Hashing)
 
 # Mean Average Precision,48 bits[AlexNet].
 
@@ -246,7 +250,7 @@ code [CSQ-pytorch](https://github.com/yuanli2333/Hadamard-Matrix-for-hashing)
         <td ></td><td >nuswide_21</td> <td >0.622</td> <td >0.9055</td>
     </tr>
     <tr>
-        <td >CSQ(ResNet50)</td><td >coco</td> <td >0.883</td> <td >0.861</td>
+        <td >CSQ(ResNet50,64bit)</td><td >coco</td> <td >0.883</td> <td >0.861</td>
     </tr>
     <tr>
         <td ></td><td >imagenet</td> <td >0.881</td> <td >0.873</td>
