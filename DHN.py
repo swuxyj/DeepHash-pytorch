@@ -19,7 +19,7 @@ def get_config():
         "alpha": 0.1,
         # "optimizer":{"type":  optim.SGD, "optim_params": {"lr": 0.05, "weight_decay": 10 ** -5}},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
-        "info": "[logcosh]",
+        "info": "[DHN]",
         "resize_size": 256,
         "crop_size": 224,
         "batch_size": 128,
@@ -32,7 +32,7 @@ def get_config():
         # "dataset": "mirflickr",
         # "dataset": "voc2012",
         # "dataset": "imagenet",
-        "dataset": "nuswide_21",
+        # "dataset": "nuswide_21",
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",
         "epoch": 90,
@@ -121,7 +121,9 @@ def train_val(config, bit):
 
             if mAP > Best_mAP:
                 Best_mAP = mAP
-
+                if "cifar10-1" == config["dataset"] and epoch > 29:
+                    P, R = pr_curve(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy())
+                    print(f'Precision Recall Curve data:\n"DHN":[{P},{R}],')
                 if "save_path" in config:
                     if not os.path.exists(config["save_path"]):
                         os.makedirs(config["save_path"])

@@ -46,6 +46,33 @@ def config_dataset(config):
     return config
 
 
+draw_range = [1, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500,
+              9000, 9500, 10000]
+
+def pr_curve(rF, qF, rL, qL, draw_range=draw_range):
+    #  https://blog.csdn.net/HackerTom/article/details/89425729
+    n_query = qF.shape[0]
+    Gnd = (np.dot(qL, rL.transpose()) > 0).astype(np.float32)
+    Rank = np.argsort(CalcHammingDist(qF, rF))
+    P, R = [], []
+    for k in tqdm(draw_range):
+        p = np.zeros(n_query)
+        r = np.zeros(n_query)
+        for it in range(n_query):
+            gnd = Gnd[it]
+            gnd_all = np.sum(gnd)
+            if gnd_all == 0:
+                continue
+            asc_id = Rank[it][:k]
+            gnd = gnd[asc_id]
+            gnd_r = np.sum(gnd)
+            p[it] = gnd_r / k
+            r[it] = gnd_r / gnd_all
+        P.append(np.mean(p))
+        R.append(np.mean(r))
+    return P, R
+
+
 class ImageList(object):
 
     def __init__(self, data_path, image_list, transform):
@@ -99,18 +126,18 @@ def cifar_dataset(config):
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
-
+    cifar_dataset_root = '/dataset/cifar/'
     # Dataset
-    train_dataset = MyCIFAR10(root='/dataset/cifar/',
+    train_dataset = MyCIFAR10(root=cifar_dataset_root,
                               train=True,
                               transform=transform,
                               download=True)
 
-    test_dataset = MyCIFAR10(root='/dataset/cifar/',
+    test_dataset = MyCIFAR10(root=cifar_dataset_root,
                              train=False,
                              transform=transform)
 
-    database_dataset = MyCIFAR10(root='/dataset/cifar/',
+    database_dataset = MyCIFAR10(root=cifar_dataset_root,
                                  train=False,
                                  transform=transform)
 

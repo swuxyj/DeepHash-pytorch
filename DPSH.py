@@ -52,7 +52,6 @@ class DPSHLoss(torch.nn.Module):
         self.U = torch.zeros(config["num_train"], bit).float().to(config["device"])
         self.Y = torch.zeros(config["num_train"], config["n_class"]).float().to(config["device"])
 
-
     def forward(self, u, y, ind, config):
         self.U[ind, :] = u.data
         self.Y[ind, :] = y.float()
@@ -121,7 +120,9 @@ def train_val(config, bit):
 
             if mAP > Best_mAP:
                 Best_mAP = mAP
-
+                if "cifar10-1" == config["dataset"] and epoch > 29:
+                    P, R = pr_curve(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy())
+                    print(f'Precision Recall Curve data:\n"DPSH":[{P},{R}],')
                 if "save_path" in config:
                     if not os.path.exists(config["save_path"]):
                         os.makedirs(config["save_path"])
