@@ -26,7 +26,7 @@ def get_config():
         "info": "[DSDH]",
         "resize_size": 256,
         "crop_size": 224,
-        "batch_size": 128,
+        "batch_size": 64,
         "net": AlexNet,
         # "net":ResNet,
         # "dataset": "cifar10",
@@ -40,7 +40,7 @@ def get_config():
         # "dataset": "nuswide_21_m",
         # "dataset": "nuswide_81_m",
         "epoch": 150,
-        "test_map": 5,
+        "test_map": 15,
         # "save_path": "save/DSDH",
         # "device":torch.device("cpu"),
         "device": torch.device("cuda:1"),
@@ -62,7 +62,7 @@ class DSDHLoss(torch.nn.Module):
         self.U[:, ind] = u.t().data
         self.Y[:, ind] = y.t()
 
-        self.updateBandW(config["device"])
+        # self.updateBandW(config["device"])
 
         inner_product = u @ self.U * 0.5
         s = (y @ self.Y > 0).float()
@@ -111,7 +111,7 @@ def train_val(config, bit):
     Best_mAP = 0
 
     for epoch in range(config["epoch"]):
-
+        criterion.updateBandW(config["device"])
         current_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
 
         print("%s[%2d/%2d][%s] bit:%d, dataset:%s, training...." % (
@@ -150,7 +150,9 @@ def train_val(config, bit):
 
             if mAP > Best_mAP:
                 Best_mAP = mAP
-
+                if "cifar10-1" == config["dataset"] and epoch > 29:
+                    P, R = pr_curve(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy())
+                    print(f'Precision Recall Curve data:\n"DSDH":[{P},{R}],')
                 if "save_path" in config:
                     if not os.path.exists(config["save_path"]):
                         os.makedirs(config["save_path"])
