@@ -13,6 +13,8 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # DSH(CVPR2016)
 # paper [Deep Supervised Hashing for Fast Image Retrieval](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Liu_Deep_Supervised_Hashing_CVPR_2016_paper.pdf)
 # code [DSH-pytorch](https://github.com/weixu000/DSH-pytorch)
+# code [CV_Project](https://github.com/aarathimuppalla/CV_Project)
+# code [DSH_tensorflow](https://github.com/yg33717/DSH_tensorflow)
 
 def get_config():
     config = {
@@ -62,7 +64,7 @@ class DSHLoss(torch.nn.Module):
 
         loss = (1 - y) / 2 * dist + y / 2 * (self.m - dist).clamp(min=0)
         loss1 = loss.mean()
-        loss2 = config["alpha"] * (1 - u.sign()).abs().mean()
+        loss2 = config["alpha"] * (1 - u.abs()).abs().mean()
 
         return loss1 + loss2
 
