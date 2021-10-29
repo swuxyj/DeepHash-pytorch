@@ -14,7 +14,7 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 # Deep Unsupervised Image Hashing by Maximizing Bit Entropy(AAAI2021)
 # paper [Deep Unsupervised Image Hashing by Maximizing Bit Entropy](https://arxiv.org/pdf/2012.12334.pdf)
 # code [Deep-Unsupervised-Image-Hashing](https://github.com/liyunqianggyn/Deep-Unsupervised-Image-Hashing)
-
+# [BiHalf Unsupervised] epoch:40, bit:64, dataset:cifar10-2, MAP:0.593, Best MAP: 0.593
 def get_config():
     config = {
         "gamma": 6,
@@ -74,10 +74,10 @@ class BiHalfModelUnsupervised(nn.Module):
         x = self.vgg.classifier(x)
 
         h = self.fc_encode(x)
-        b = BiHalfModelUnsupervised.Hash.apply(h)
         if not self.training:
-            return b
+            return h.sign()
         else:
+            b = BiHalfModelUnsupervised.Hash.apply(h)
             target_b = F.cosine_similarity(b[:x.size(0) // 2], b[x.size(0) // 2:])
             target_x = F.cosine_similarity(x[:x.size(0) // 2], x[x.size(0) // 2:])
             loss = F.mse_loss(target_b, target_x)
