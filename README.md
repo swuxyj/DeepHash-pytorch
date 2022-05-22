@@ -22,13 +22,14 @@ If you have any problems, feel free to contact me by email(1142732931@qq.com) or
 cd demo
 python demo.py   
 ```
-<img src="https://github.com/swuxyj/DeepHash-pytorch/blob/master/demo/demo.png"  alt="Demo"/><br/>  
+<img src="https://github.com/swuxyj/DeepHash-pytorch/blob/master/demo/demo.png"  alt="Matplotlib Demo"/><br/>  
 
 - Flask demo
 ```
 cd demo/www
 python app.py   
 ```
+<img src="https://github.com/swuxyj/DeepHash-pytorch/blob/master/demo/www/flask.png"  alt="Flask Demo"/><br/>  
 # Precision Recall Curve
 I add some code in DSH.py:
 ```

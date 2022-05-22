@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>大规模图像哈希检索系统</title>
@@ -103,270 +104,241 @@
     </style>
 </head>
 
-<!-- <body style="background-image: url(static/upload.png);background-size:cover;"> -->
 <body style="padding: 20px;height: 100%; background-color: #F2F2F2;">
-<div style="font-size: 50px;text-align: center;">大规模图像哈希检索系统</div>
+    <div style="font-size: 50px;text-align: center;">大规模图像哈希检索系统</div>
 
-<!--<div class="layui-upload-list" style="text-align: center">-->
-<!--    <img class="layui-upload-img" id="upload_before">-->
-<!--    <span type="button" class="layui-btn" id="test1">上传图片</span>-->
-<!--</div>-->
-
-<div class="layui-upload-drag" id="test10" style="text-align: center">
-    <i class="layui-icon"></i>
-    <p>点击上传图片，或将图片拖拽到此处</p>
-    <hr>
-    <div class="layui-hide" id="uploadDemoView">
-        <img src="" alt="上传成功后渲染" style="max-width: 196px">
+    <div class="layui-upload-drag" id="test10" style="text-align: center">
+        <i class="layui-icon"></i>
+        <p>点击上传图片，或将图片拖拽到此处</p>
+        <hr>
+        <div class="layui-hide" id="uploadDemoView">
+            <img src="" alt="上传成功后渲染" style="max-width: 196px">
+        </div>
     </div>
-</div>
 
-<div style="text-align: center;" id="result"></div>
-<div id="main"></div>
-<script src="static/layui/layui.js"></script>
+    <div style="text-align: center;" id="result"></div>
+    <div id="main"></div>
+    <script src="static/layui/layui.js"></script>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    // 感谢贤心~
-    layui.use(['layer', 'upload'], function () {
-        var $ = layui.jquery
-            , upload = layui.upload;
+        // 感谢贤心~
+        layui.use(['layer', 'upload'], function () {
+            var $ = layui.jquery
+                , upload = layui.upload;
 
-        function waterfall() {
-            var $boxs = $('#main>div');
-            var w = $boxs.eq(0).outerWidth();
-            var cols = Math.floor($(window).width() / w);
-            $('#main').width(w * cols).css('margin', '0 auto');
-            var hArr = [];
-            $boxs.each(function (index, value) {
-                var h = $boxs.eq(index).outerHeight();
-                if (index < cols) {
-                    hArr[index] = h;
-                    $(value).css({
-                        'position': 'absolute',
-                        'left': index * w + 'px',
-                        'top': 0 + 'px',
-                    })
-                } else {
-                    var count = 3;
-                    while ($boxs.eq(index).outerHeight() < 40 && count > 0) {
-                        setTimeout(null, 1000);
-                        count--;
+            function waterfall() {
+                var $boxs = $('#main>div');
+                var w = $boxs.eq(0).outerWidth();
+                var cols = Math.floor($(window).width() / w);
+                $('#main').width(w * cols).css('margin', '0 auto');
+                var hArr = [];
+                $boxs.each(function (index, value) {
+                    var h = $boxs.eq(index).outerHeight();
+                    if (index < cols) {
+                        hArr[index] = h;
+                        $(value).css({
+                            'position': 'absolute',
+                            'left': index * w + 'px',
+                            'top': 0 + 'px',
+                        })
+                    } else {
+                        var count = 3;
+                        while ($boxs.eq(index).outerHeight() < 40 && count > 0) {
+                            setTimeout(null, 1000);
+                            count--;
+                        }
+                        var minH = Math.min.apply(null, hArr);
+                        var minHIndex = $.inArray(minH, hArr);
+                        $(value).css({
+                            'position': 'absolute',
+                            'top': minH + 'px',
+                            'left': minHIndex * w + 'px'
+                        })
+                        hArr[minHIndex] += $boxs.eq(index).outerHeight();
                     }
-                    var minH = Math.min.apply(null, hArr);
-                    var minHIndex = $.inArray(minH, hArr);
-                    $(value).css({
-                        'position': 'absolute',
-                        'top': minH + 'px',
-                        'left': minHIndex * w + 'px'
+                })
+                $(".pic").each(function () {
+                    $(this).on('mouseenter', function (e) {
+
+                        var e = e || window.event;
+                        var angle = direct(e, this)
+                        mouseEvent(angle, this, 'in')
                     })
-                    hArr[minHIndex] += $boxs.eq(index).outerHeight();
-                }
-            })
-            $(".pic").each(function () {
-                $(this).on('mouseenter', function (e) {
-
-                    var e = e || window.event;
-                    var angle = direct(e, this)
-                    mouseEvent(angle, this, 'in')
+                    $(this).on('mouseleave', function (e) {
+                        var e = e || window.event;
+                        var angle = direct(e, this)
+                        mouseEvent(angle, this, 'off')
+                    })
                 })
-                $(this).on('mouseleave', function (e) {
-                    var e = e || window.event;
-                    var angle = direct(e, this)
-                    mouseEvent(angle, this, 'off')
-                })
-            })
-        }
+            }
 
-        $(window).resize(function () {
-            waterfall();
-        });
-        setInterval(function () {
-            waterfall();
-        }, 500);
+            $(window).resize(function () {
+                waterfall();
+            });
+            setInterval(function () {
+                waterfall();
+            }, 500);
 
-        function direct(e, o) {
-            var w = o.offsetWidth;
-            var h = o.offsetHeight;
-            var top = o.offsetTop;                    //包含滚动条滚动的部分
-            var left = o.offsetLeft;
-            var scrollTOP = document.body.scrollTop || document.documentElement.scrollTop;
-            var scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft;
-            var offTop = top - scrollTOP;
-            var offLeft = left - scrollLeft;
-            //console.log(offTop+";"+offLeft)
-            // e.pageX|| e.clientX;
-            //pageX 是从页面0 0 点开始  clientX是当前可视区域0 0开始  即当有滚动条时clientX  小于  pageX
-            //ie678不识别pageX
-            //PageY=clientY+scrollTop-clientTop;(只讨论Y轴,X轴同理,下同) 页面上的位置=可视区域位置+页面滚动条切去高度-自身border高度
-            var ex = (e.pageX - scrollLeft) || e.clientX;
-            var ey = (e.pageY - scrollTOP) || e.clientY;
-            var x = (ex - offLeft - w / 2) * (w > h ? (h / w) : 1);
-            var y = (ey - offTop - h / 2) * (h > w ? (w / h) : 1);
+            function direct(e, o) {
+                var w = o.offsetWidth;
+                var h = o.offsetHeight;
+                var top = o.offsetTop;                    //包含滚动条滚动的部分
+                var left = o.offsetLeft;
+                var scrollTOP = document.body.scrollTop || document.documentElement.scrollTop;
+                var scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft;
+                var offTop = top - scrollTOP;
+                var offLeft = left - scrollLeft;
+                //console.log(offTop+";"+offLeft)
+                // e.pageX|| e.clientX;
+                //pageX 是从页面0 0 点开始  clientX是当前可视区域0 0开始  即当有滚动条时clientX  小于  pageX
+                //ie678不识别pageX
+                //PageY=clientY+scrollTop-clientTop;(只讨论Y轴,X轴同理,下同) 页面上的位置=可视区域位置+页面滚动条切去高度-自身border高度
+                var ex = (e.pageX - scrollLeft) || e.clientX;
+                var ey = (e.pageY - scrollTOP) || e.clientY;
+                var x = (ex - offLeft - w / 2) * (w > h ? (h / w) : 1);
+                var y = (ey - offTop - h / 2) * (h > w ? (w / h) : 1);
 
-            var angle = (Math.round((Math.atan2(y, x) * (180 / Math.PI) + 180) / 90) + 3) % 4 //atan2返回的是弧度 atan2(y,x)
-            var directName = ["上", "右", "下", "左"];
-            return directName[angle];  //返回方向  0 1 2 3对应 上 右 下 左
-        }
+                var angle = (Math.round((Math.atan2(y, x) * (180 / Math.PI) + 180) / 90) + 3) % 4 //atan2返回的是弧度 atan2(y,x)
+                var directName = ["上", "右", "下", "左"];
+                return directName[angle];  //返回方向  0 1 2 3对应 上 右 下 左
+            }
 
-        function mouseEvent(angle, o, d) { //方向  元素  鼠标进入/离开
-            var w = o.offsetWidth;
-            var h = o.offsetHeight;
+            function mouseEvent(angle, o, d) { //方向  元素  鼠标进入/离开
+                var w = o.offsetWidth;
+                var h = o.offsetHeight;
 
-            if (d == 'in') {
-                console.log(angle);
-                switch (angle) {
-                    case '上':
+                if (d == 'in') {
+                    console.log(angle);
+                    switch (angle) {
+                        case '上':
 
-                        $(o).find("p").css({left: 0, top: -h + "px"}).stop(true).animate({left: 0, top: 0}, 300)
-                        setTimeout(function () {
-                            $(o).find("p a").css({left: '50%', top: -h + "px"}).stop(true).animate({
-                                left: '50%',
-                                top: '20px'
-                            }, 300)
-                        }, 200)
-                        break;
-                    case '右':
-                        $(o).find("p").css({left: w + "px", top: 0}).stop(true).animate({left: 0, top: 0}, 300)
-                        setTimeout(function () {
-                            $(o).find("p a").css({left: w + "px", top: '20px'}).stop(true).animate({
-                                left: '50%',
-                                top: '20px'
-                            }, 300)
-                        }, 200)
-                        break;
-                    case '下':
-                        $(o).find("p").css({left: 0, top: h + "px"}).stop(true).animate({left: 0, top: 0}, 300)
-                        setTimeout(function () {
-                            $(o).find("p a").css({left: '50%', top: h + "px"}).stop(true).animate({
-                                left: '50%',
-                                top: '20px'
-                            }, 300)
-                        }, 200)
-                        break;
-                    case '左':
-                        $(o).find("p").css({left: -w + "px", top: 0}).stop(true).animate({left: 0, top: 0}, 300)
-                        setTimeout(function () {
-                            $(o).find("p a").css({left: -w + "px", top: '20px'}).stop(true).animate({
-                                left: '50%',
-                                top: '20px'
-                            }, 300)
-                        }, 200)
-                        break;
-                }
-            } else if (d == 'off') {
-                switch (angle) {
-                    case '上':
-                        $(o).find("p a").stop(true).animate({left: '50%', top: -h + "px"}, 300)
-                        setTimeout(function () {
-                            $(o).find("p").stop(true).animate({left: 0, top: -h + "px"}, 300)
-                        }, 200)
-                        break;
-                    case '右':
-                        $(o).find("p a").stop(true).animate({left: w + "px", top: '20px'}, 300)
-                        setTimeout(function () {
-                            $(o).find("p").stop(true).animate({left: w + "px", top: 0}, 300)
-                        }, 200)
-                        break;
-                    case '下':
-                        $(o).find("p a").stop(true).animate({left: '50%', top: h + "px"}, 300)
-                        setTimeout(function () {
-                            $(o).find("p").stop(true).animate({left: 0, top: h + "px"}, 300)
-                        }, 200)
-                        break;
-                    case '左':
-                        $(o).find("p a").stop(true).animate({left: -w + "px", top: '20px'}, 300)
-                        setTimeout(function () {
-                            $(o).find("p").stop(true).animate({left: -w + "px", top: 0}, 300)
-                        }, 200)
-                        break;
+                            $(o).find("p").css({ left: 0, top: -h + "px" }).stop(true).animate({ left: 0, top: 0 }, 300)
+                            setTimeout(function () {
+                                $(o).find("p a").css({ left: '50%', top: -h + "px" }).stop(true).animate({
+                                    left: '50%',
+                                    top: '20px'
+                                }, 300)
+                            }, 200)
+                            break;
+                        case '右':
+                            $(o).find("p").css({ left: w + "px", top: 0 }).stop(true).animate({ left: 0, top: 0 }, 300)
+                            setTimeout(function () {
+                                $(o).find("p a").css({ left: w + "px", top: '20px' }).stop(true).animate({
+                                    left: '50%',
+                                    top: '20px'
+                                }, 300)
+                            }, 200)
+                            break;
+                        case '下':
+                            $(o).find("p").css({ left: 0, top: h + "px" }).stop(true).animate({ left: 0, top: 0 }, 300)
+                            setTimeout(function () {
+                                $(o).find("p a").css({ left: '50%', top: h + "px" }).stop(true).animate({
+                                    left: '50%',
+                                    top: '20px'
+                                }, 300)
+                            }, 200)
+                            break;
+                        case '左':
+                            $(o).find("p").css({ left: -w + "px", top: 0 }).stop(true).animate({ left: 0, top: 0 }, 300)
+                            setTimeout(function () {
+                                $(o).find("p a").css({ left: -w + "px", top: '20px' }).stop(true).animate({
+                                    left: '50%',
+                                    top: '20px'
+                                }, 300)
+                            }, 200)
+                            break;
+                    }
+                } else if (d == 'off') {
+                    switch (angle) {
+                        case '上':
+                            $(o).find("p a").stop(true).animate({ left: '50%', top: -h + "px" }, 300)
+                            setTimeout(function () {
+                                $(o).find("p").stop(true).animate({ left: 0, top: -h + "px" }, 300)
+                            }, 200)
+                            break;
+                        case '右':
+                            $(o).find("p a").stop(true).animate({ left: w + "px", top: '20px' }, 300)
+                            setTimeout(function () {
+                                $(o).find("p").stop(true).animate({ left: w + "px", top: 0 }, 300)
+                            }, 200)
+                            break;
+                        case '下':
+                            $(o).find("p a").stop(true).animate({ left: '50%', top: h + "px" }, 300)
+                            setTimeout(function () {
+                                $(o).find("p").stop(true).animate({ left: 0, top: h + "px" }, 300)
+                            }, 200)
+                            break;
+                        case '左':
+                            $(o).find("p a").stop(true).animate({ left: -w + "px", top: '20px' }, 300)
+                            setTimeout(function () {
+                                $(o).find("p").stop(true).animate({ left: -w + "px", top: 0 }, 300)
+                            }, 200)
+                            break;
+                    }
                 }
             }
-        }
 
-        //拖拽上传
-        upload.render({
-            elem: '#test10'
-            , url: '/predict'
-            // ,done: function(res){
-            //   layer.msg('上传成功');
-            //   layui.$('#uploadDemoView').removeClass('layui-hide').find('img').attr('src', res.files.file);
-            //   console.log(res)
-            // }
+            //拖拽上传
+            upload.render({
+                elem: '#test10'
+                , url: '/predict'
+                , before: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('#uploadDemoView').removeClass('layui-hide').find('img').attr('src', result); //图片链接（base64）
+                        layer.msg('处理中，请等待。。。。');
+                    });
+                }
+                , done: function (res) {
+                    $('#result').html("<h3>查询图片的哈希码：" + res["qB"] + "</h3>")
+                    $("#main").html("");
+                    res["result"].forEach(function (item, index) {
+                        $("#main").append(
+                            '<div class = "box" >' +
+                            '<div class = "pic">' +
+                            '<img src="data:;base64,' + item.img + '" class="layui-upload-img" title="哈希码：' + item.code + '">' +
+                            '<p style="left: 251px; top: 0px;"><span>汉明距离:' +
+                            item.hmm + ',哈希编码：' + item.code +
+                            '</span><a target="_blank" href="#" style="left: 50%; top: 20px;"></a><i></i></p></div></div>');
+                    });
+                    waterfall();
+                }
+                , error: function () {
+                    layer.msg('上传失败！请检查网络！');
+                }
 
-            , before: function (obj) {
-                //预读本地文件示例，不支持ie8
-                obj.preview(function (index, file, result) {
-                    $('#uploadDemoView').removeClass('layui-hide').find('img').attr('src', result); //图片链接（base64）
-                    layer.msg('处理中，请等待。。。。');
-                });
-            }
-            , done: function (res) {
-                $('#result').html("<h3>查询图片的哈希码：" + res["qB"] + "</h3>")
-                $("#main").html("");
-                res["result"].forEach(function (item, index) {
-                    $("#main").append(
-                        '<div class = "box" >' +
-                        '<div class = "pic">' +
-                        '<img src="data:;base64,' + item.img + '" class="layui-upload-img" title="哈希码：' + item.code + '">' +
-                        '<p style="left: 251px; top: 0px;"><span>汉明距离:' +
-                        item.hmm + ',哈希编码：' + item.code +
-                        '</span><a target="_blank" href="#" style="left: 50%; top: 20px;"></a><i></i></p></div></div>');
-                });
-                waterfall();
-            }
-            , error: function () {
-                layer.msg('上传失败！请检查网络！');
-            }
-
+            });
+            var uploadInst = upload.render({
+                elem: '#test1'
+                , url: '/predict'
+                , before: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('#upload_before').attr('src', result); //图片链接（base64）
+                        layer.msg('处理中，请等待。。。。');
+                    });
+                }
+                , done: function (res) {
+                    $('#result').html("<h3>查询图片的哈希码：" + res["qB"] + "</h3>")
+                    $("#main").html("");
+                    res["result"].forEach(function (item, index) {
+                        $("#main").append(
+                            '<div class = "box" >' +
+                            '<div class = "pic">' +
+                            '<img src="data:;base64,' + item.img + '" class="layui-upload-img" title="哈希码：' + item.code + '">' +
+                            '<p style="left: 251px; top: 0px;"><span>汉明距离:' +
+                            item.hmm + ',哈希编码：' + item.code +
+                            '</span><a target="_blank" href="#" style="left: 50%; top: 20px;"></a><i></i></p></div></div>');
+                    });
+                    waterfall();
+                }
+                , error: function () {
+                    layer.msg('上传失败！请检查网络！');
+                }
+            });
         });
-        var uploadInst = upload.render({
-            elem: '#test1'
-            , url: '/predict'
-            , before: function (obj) {
-                //预读本地文件示例，不支持ie8
-                obj.preview(function (index, file, result) {
-                    $('#upload_before').attr('src', result); //图片链接（base64）
-                    layer.msg('处理中，请等待。。。。');
-                });
-            }
-            , done: function (res) {
-                $('#result').html("<h3>查询图片的哈希码：" + res["qB"] + "</h3>")
-                $("#main").html("");
-                res["result"].forEach(function (item, index) {
-                    $("#main").append(
-                        '<div class = "box" >' +
-                        '<div class = "pic">' +
-                        '<img src="data:;base64,' + item.img + '" class="layui-upload-img" title="哈希码：' + item.code + '">' +
-                        '<p style="left: 251px; top: 0px;"><span>汉明距离:' +
-                        item.hmm + ',哈希编码：' + item.code +
-                        '</span><a target="_blank" href="#" style="left: 50%; top: 20px;"></a><i></i></p></div></div>');
-                });
-                waterfall();
-            }
-            , error: function () {
-                layer.msg('上传失败！请检查网络！');
-            }
-        });
-    });
-
-    // $('#pre').click(function () {
-
-    //     $.ajax({
-    //         url: '/predict',
-    //         type: 'POST',
-    //         data: formData,
-    //         processData: false,
-    //         contentType: false,
-    //         success: function (data) {
-    //             $('#show_data').attr("src", "data:;base64," + data);
-    //         },
-    //         complete: function () {
-    //             $('#load').remove();
-    //             jqSender.show();
-    //         }
-    //     });
-    // })
-</script>
+    </script>
 </body>
+
 </html>
