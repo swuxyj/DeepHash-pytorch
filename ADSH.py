@@ -1,10 +1,8 @@
 from utils.tools import *
 from network import *
-
 import os
 import torch
 import torch.optim as optim
-import torch.nn as nn
 from tqdm import tqdm
 import time
 import numpy as np
@@ -128,34 +126,13 @@ def train_val(config, bit):
             V[:, k] = -(2 * V_ @ (U_.t() @ Uk) + Qk).sign()
 
         if (iter + 1) % config["test_map"] == 0:
-            # print("calculating test binary code......")
-            tst_binary, tst_label = compute_result(test_loader, net, device=device)
+            Best_mAP = validate(config, Best_mAP, test_loader, dataset_loader, net, bit, epoch, num_dataset)
 
-            # print("calculating dataset binary code.......")
-            trn_binary, trn_label = compute_result(dataset_loader, net, device=device)
-
-            # print("calculating map.......")
-            mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),
-                             config["topK"])
-
-            if mAP > Best_mAP:
-                Best_mAP = mAP
-
-                if "save_path" in config:
-                    if not os.path.exists(config["save_path"]):
-                        os.makedirs(config["save_path"])
-                    print("save in ", config["save_path"])
-                    np.save(os.path.join(config["save_path"], config["dataset"] + str(mAP) + "-" + "trn_binary.npy"),
-                            trn_binary.numpy())
-                    torch.save(net.state_dict(),
-                               os.path.join(config["save_path"], config["dataset"] + "-" + str(mAP) + "-model.pt"))
-            print("%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f, Best MAP: %.3f" % (
-                config["info"], iter + 1, bit, config["dataset"], mAP, Best_mAP))
-            print(config)
-
+def main():
+    config = get_config()
+    for bit in config["bit_list"]:
+        config["pr_curve_path"] = f"log/alexnet/ADSH_{config['dataset']}_{bit}.json"
+        train_val(config, bit)
 
 if __name__ == "__main__":
-    config = get_config()
-    print(config)
-    for bit in config["bit_list"]:
-        train_val(config, bit)
+    main()

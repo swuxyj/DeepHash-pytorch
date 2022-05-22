@@ -1,11 +1,8 @@
 from utils.tools import *
 from network import *
-
-import os
 import torch
 import torch.optim as optim
 import time
-import numpy as np
 
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -17,6 +14,7 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 def get_config():
     config = {
         "alpha": 0.1,
+        "need_PR": False,
         # "optimizer": {"type": optim.SGD, "optim_params": {"lr": 0.005, "weight_decay": 10 ** -5}},
         "optimizer": {"type": optim.RMSprop, "optim_params": {"lr": 1e-5, "weight_decay": 10 ** -5}},
         "info": "[DPSH]",
@@ -105,39 +103,16 @@ def train_val(config, bit):
 
         train_loss = train_loss / len(train_loader)
 
-        print("\b\b\b\b\b\b\b loss:%.3f" % (train_loss))
+        print("\b\b\b\b\b\b\b loss:%.5f" % (train_loss))
 
         if (epoch + 1) % config["test_map"] == 0:
-            # print("calculating test binary code......")
-            tst_binary, tst_label = compute_result(test_loader, net, device=device)
+            Best_mAP = validate(config, Best_mAP, test_loader, dataset_loader, net, bit, epoch, num_dataset)
 
-            # print("calculating dataset binary code.......")\
-            trn_binary, trn_label = compute_result(dataset_loader, net, device=device)
-
-            # print("calculating map.......")
-            mAP = CalcTopMap(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy(),
-                             config["topK"])
-
-            if mAP > Best_mAP:
-                Best_mAP = mAP
-                if "cifar10-1" == config["dataset"] and epoch > 29:
-                    P, R = pr_curve(trn_binary.numpy(), tst_binary.numpy(), trn_label.numpy(), tst_label.numpy())
-                    print(f'Precision Recall Curve data:\n"DPSH":[{P},{R}],')
-                if "save_path" in config:
-                    if not os.path.exists(config["save_path"]):
-                        os.makedirs(config["save_path"])
-                    print("save in ", config["save_path"])
-                    np.save(os.path.join(config["save_path"], config["dataset"] + str(mAP) + "-" + "trn_binary.npy"),
-                            trn_binary.numpy())
-                    torch.save(net.state_dict(),
-                               os.path.join(config["save_path"], config["dataset"] + "-" + str(mAP) + "-model.pt"))
-            print("%s epoch:%d, bit:%d, dataset:%s, MAP:%.3f, Best MAP: %.3f" % (
-                config["info"], epoch + 1, bit, config["dataset"], mAP, Best_mAP))
-            print(config)
-
+def main():
+    config = get_config()
+    for bit in config["bit_list"]:
+        config["pr_curve_path"] = f"log/alexnet/DPSH_{config['dataset']}_{bit}.json"
+        train_val(config, bit)
 
 if __name__ == "__main__":
-    config = get_config()
-    print(config)
-    for bit in config["bit_list"]:
-        train_val(config, bit)
+    main()
