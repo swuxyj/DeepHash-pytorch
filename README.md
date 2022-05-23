@@ -16,7 +16,33 @@ python DSDH.py
 ```
 
 If you have any problems, feel free to contact me by email(1142732931@qq.com) or raise an issue.  
+
+
+# Dataset
+There are three different configurations for cifar10  
+- config["dataset"]="cifar10" will use 1000 images (100 images per class) as the query set, 5000 images( 500 images per class) as training set , the remaining 54,000 images are used as database.
+- config["dataset"]="cifar10-1" will use 1000 images (100 images per class) as the query set, the remaining 59,000 images are used as database, 5000 images( 500 images per class) are randomly sampled from the database as training set.  
+- config["dataset"]="cifar10-2" will use 10000 images (1000 images per class) as the query set, 50000 images( 5000 images per class) as training set and database.
+
+
+You can download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)     
+Use data/nus-wide/code.py to randomly select 100 images per class as the query set (2,100 images in total). The remaining images are
+used as the database set, from which we randomly sample 500 images per class as the training set (10, 500 images
+in total).
+
+You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch) where is the data split  copy from,  or [Baidu Pan(Password: hash)](https://pan.baidu.com/s/1_BiOmeCRYx6cVTWeWq-O9g).
+  
+NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.  
+
+269,648 images in NUS-WIDE , and 195834 images which are associated with 21 most frequent concepts.     
+
+NUS-WIDE-m has 223,496 images,and  NUS-WIDE-m  is used in [HashNet(ICCV2017)](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf) and code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)    
+
+download [mirflickr](https://press.liacs.nl/mirflickr/mirdownload.html) , and use ./data/mirflickr/code.py to randomly select 1000 images as the test query set and 4000 images as the train set.
+
 # Demo
+- model imagenet_64bits_0.8824931967229359.zip
+[Baidu Pan(Password: hash)](https://pan.baidu.com/s/1_BiOmeCRYx6cVTWeWq-O9g).
 - matplotlib demo
 ```
 cd demo
@@ -42,27 +68,6 @@ python precision_recall_curve.py
 ```
 <img src="https://github.com/swuxyj/DeepHash-pytorch/blob/master/utils/pr.png"  alt="Precision Recall Curve"/><br/>  
 
-# Dataset
-There are three different configurations for cifar10  
-- config["dataset"]="cifar10" will use 1000 images (100 images per class) as the query set, 5000 images( 500 images per class) as training set , the remaining 54,000 images are used as database.
-- config["dataset"]="cifar10-1" will use 1000 images (100 images per class) as the query set, the remaining 59,000 images are used as database, 5000 images( 500 images per class) are randomly sampled from the database as training set.  
-- config["dataset"]="cifar10-2" will use 10000 images (1000 images per class) as the query set, 50000 images( 5000 images per class) as training set and database.
-
-
-You can download   NUS-WIDE [here](https://github.com/TreezzZ/DSDH_PyTorch)     
-Use data/nus-wide/code.py to randomly select 100 images per class as the query set (2,100 images in total). The remaining images are
-used as the database set, from which we randomly sample 500 images per class as the training set (10, 500 images
-in total).
-
-You can download  ImageNet, NUS-WIDE-m and COCO dataset [here](https://github.com/thuml/HashNet/tree/master/pytorch) where is the data split  copy from,  or [Baidu Pan(Password: hash)](https://pan.baidu.com/s/1_BiOmeCRYx6cVTWeWq-O9g).
-  
-NUS-WIDE-m is different from  NUS-WIDE, so i made a distinction.  
-
-269,648 images in NUS-WIDE , and 195834 images which are associated with 21 most frequent concepts.     
-
-NUS-WIDE-m has 223,496 images,and  NUS-WIDE-m  is used in [HashNet(ICCV2017)](http://openaccess.thecvf.com/content_ICCV_2017/papers/Cao_HashNet_Deep_Learning_ICCV_2017_paper.pdf) and code [HashNet caffe and pytorch](https://github.com/thuml/HashNet)    
-
-download [mirflickr](https://press.liacs.nl/mirflickr/mirdownload.html) , and use ./data/mirflickr/code.py to randomly select 1000 images as the test query set and 4000 images as the train set.
  
 # Paper And Code
 It is difficult to implement all by myself, so I made some modifications based on these codes  
