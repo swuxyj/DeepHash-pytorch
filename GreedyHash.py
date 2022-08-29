@@ -86,9 +86,10 @@ def train_val(config, bit):
     config["num_train"] = num_train
     net = config["net"](bit).to(device)
 
-    optimizer = config["optimizer"]["type"](net.parameters(), **(config["optimizer"]["optim_params"]))
-
     criterion = GreedyHashLoss(config, bit)
+    optimizer = config["optimizer"]["type"](list(net.parameters())+list(criterion.parameters()), **(config["optimizer"]["optim_params"]))
+
+    
 
     Best_mAP = 0
 
