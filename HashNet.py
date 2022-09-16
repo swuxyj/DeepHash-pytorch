@@ -50,34 +50,25 @@ def get_config():
 class HashNetLoss(torch.nn.Module):
     def __init__(self, config, bit):
         super(HashNetLoss, self).__init__()
-        self.U = torch.zeros(config["num_train"], bit).float().to(config["device"])
-        self.Y = torch.zeros(config["num_train"], config["n_class"]).float().to(config["device"])
-
         self.scale = 1
 
     def forward(self, u, y, ind, config):
         u = torch.tanh(self.scale * u)
-
-        self.U[ind, :] = u.data
-        self.Y[ind, :] = y.float()
-
-        similarity = (y @ self.Y.t() > 0).float()
-        dot_product = config["alpha"] * u @ self.U.t()
-
-        mask_positive = similarity.data > 0
-        mask_negative = similarity.data <= 0
-
-        exp_loss = (1 + (-dot_product.abs()).exp()).log() + dot_product.clamp(min=0) - similarity * dot_product
-
-        # weight
-        S1 = mask_positive.float().sum()
-        S0 = mask_negative.float().sum()
+        S = (y @ y.t() > 0).float()
+        sigmoid_alpha = config["alpha"]
+        dot_product = sigmoid_alpha * u @ u.t()
+        mask_positive = S > 0
+        mask_negative = (1 - S).bool()
+        
+        neg_log_probe = dot_product + torch.log(1 + torch.exp(-dot_product)) -  S * dot_product
+        S1 = torch.sum(mask_positive.float())
+        S0 = torch.sum(mask_negative.float())
         S = S0 + S1
-        exp_loss[mask_positive] = exp_loss[mask_positive] * (S / S1)
-        exp_loss[mask_negative] = exp_loss[mask_negative] * (S / S0)
 
-        loss = exp_loss.sum() / S
+        neg_log_probe[mask_positive] = neg_log_probe[mask_positive] * S / S1
+        neg_log_probe[mask_negative] = neg_log_probe[mask_negative] * S / S0
 
+        loss = torch.sum(neg_log_probe) / S
         return loss
 
 
