@@ -189,7 +189,7 @@ def get_data(config):
         print(data_set, len(dsets[data_set]))
         dset_loaders[data_set] = util_data.DataLoader(dsets[data_set],
                                                       batch_size=data_config[data_set]["batch_size"],
-                                                      shuffle=True, num_workers=4)
+                                                      shuffle= (data_set == "train_set") , num_workers=4)
 
     return dset_loaders["train_set"], dset_loaders["test"], dset_loaders["database"], \
            len(dsets["train_set"]), len(dsets["test"]), len(dsets["database"])
